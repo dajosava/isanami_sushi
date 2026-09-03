@@ -220,18 +220,18 @@ export function MesaPedidoClient({
   return (
     <>
       {pending ? <LoadingOverlay label="Procesando pedido..." /> : null}
-      <div className="grid grid-cols-1 gap-4 pb-32 lg:grid-cols-3 lg:gap-6 lg:pb-0">
-      <div className="order-2 min-w-0 space-y-4 lg:order-1 lg:col-span-2">
-        <div className="flex items-center gap-3">
-          <Link
-            href={volverHref}
-            className="text-sm text-washi-50/80 underline-offset-2 hover:text-washi-50 hover:underline"
-          >
-            ← Volver
-          </Link>
-        </div>
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <Link
+          href={volverHref}
+          className="text-sm text-washi-50/80 underline-offset-2 hover:text-washi-50 hover:underline"
+        >
+          ← Volver
+        </Link>
         <h1 className="font-display text-xl text-washi-50 sm:text-2xl">{encabezado}</h1>
+      </div>
 
+      <div className="grid grid-cols-1 items-start gap-4 pb-32 lg:grid-cols-3 lg:gap-6 lg:pb-0">
+      <div className="order-2 min-w-0 space-y-4 lg:order-1 lg:col-span-2">
         {categorias.length > 0 ? (
           <Card>
             <CardHeader>
@@ -239,7 +239,7 @@ export function MesaPedidoClient({
             </CardHeader>
             <CardContent>
               <div
-                className="isanami-category-scroll mb-4 flex flex-nowrap gap-2 overflow-x-auto pb-2"
+                className="isanami-category-scroll mb-4 flex flex-nowrap gap-2 overflow-x-auto pb-2 md:flex-wrap md:overflow-visible md:pb-0"
                 role="tablist"
                 aria-label="Categorías del menú"
               >
