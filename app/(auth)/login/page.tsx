@@ -150,67 +150,65 @@ export default function LoginPage() {
       {/* Vignette */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(18,8,10,0.55)_100%)]" />
 
-      <div className="relative z-10 w-full max-w-md animate-fade-up">
-        <div className="overflow-hidden rounded-xl border border-sakura-300/40 bg-washi-50/95 shadow-[0_24px_60px_rgba(80,16,24,0.45)] backdrop-blur-sm">
-          <div className="h-1.5 w-full bg-gradient-to-r from-umeboshi-700 via-sakura-500 to-umeboshi-600" />
-
-          <div className="px-8 pb-8 pt-7">
-            <div className="mb-6 flex flex-col items-center text-center">
-              <Image
-                src="/isanami-logo.png"
-                alt="Isanami Sushi"
-                width={448}
-                height={448}
-                className="mb-3 h-auto w-48 drop-shadow-sm"
-                priority
-              />
-              <p className="text-sm text-sumi-700">Acceso al sistema interno</p>
-              <p className="mt-1 text-xs tracking-[0.18em] text-sakura-600/90 uppercase">
-                Sakura · Hojancha
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="mb-1 block text-sm font-medium text-sumi-800">
-                  Correo
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-md border border-sakura-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-sakura-500 focus:ring-2 focus:ring-sakura-300/60"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="password" className="mb-1 block text-sm font-medium text-sumi-800">
-                  Contrasena
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-md border border-sakura-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-sakura-500 focus:ring-2 focus:ring-sakura-300/60"
-                />
-              </div>
-
-              {error && <p className="text-sm text-umeboshi-500">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={loading || entering}
-                className="w-full rounded-md bg-[#FF4D3A] px-4 py-2.5 text-sm font-medium text-white shadow-[0_8px_24px_rgba(255,77,58,0.45)] transition hover:bg-[#FF3B26] hover:shadow-[0_10px_28px_rgba(255,59,38,0.55)] disabled:opacity-60"
-              >
-                {entering ? "Entrando..." : loading ? "Ingresando..." : "Ingresar"}
-              </button>
-            </form>
-          </div>
+      <div className="relative z-10 w-full max-w-sm animate-fade-up px-2">
+        <div className="flex flex-col items-center text-center">
+          <Image
+            src="/isanami-logo.png"
+            alt="Isanami Sushi"
+            width={448}
+            height={448}
+            className="mb-4 h-auto w-52 drop-shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:w-56"
+            priority
+          />
+          <p className="text-sm text-washi-50/90">Acceso al sistema interno</p>
+          <p className="mt-1 text-xs tracking-[0.18em] text-sakura-200 uppercase">
+            Hojancha Guanacaste
+          </p>
         </div>
+
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-washi-50">
+              Correo
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-md border border-white/25 bg-white/10 px-3 py-2.5 text-sm text-washi-50 placeholder:text-washi-50/45 outline-none backdrop-blur-[2px] transition focus:border-sakura-300 focus:bg-white/15 focus:ring-2 focus:ring-sakura-300/40"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-washi-50">
+              Contrasena
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-md border border-white/25 bg-white/10 px-3 py-2.5 text-sm text-washi-50 placeholder:text-washi-50/45 outline-none backdrop-blur-[2px] transition focus:border-sakura-300 focus:bg-white/15 focus:ring-2 focus:ring-sakura-300/40"
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-md border border-[#FF4D3A]/40 bg-[#FF4D3A]/15 px-3 py-2 text-sm text-sakura-100">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading || entering}
+            className="w-full rounded-md bg-[#FF4D3A] px-4 py-2.5 text-sm font-medium text-white shadow-[0_8px_24px_rgba(255,77,58,0.45)] transition hover:bg-[#FF3B26] hover:shadow-[0_10px_28px_rgba(255,59,38,0.55)] disabled:opacity-60"
+          >
+            {entering ? "Entrando..." : loading ? "Ingresando..." : "Ingresar"}
+          </button>
+        </form>
       </div>
     </main>
     </>
