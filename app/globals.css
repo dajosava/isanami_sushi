@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+body {
+  @apply bg-washi-50 text-sumi-900 antialiased;
+}
+
+/* Fondo sakura compartido (login + sidebar + dashboard) */
+.bg-isanami-sakura {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 15%, #c94b66 0%, transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 100%, #6b2416 0%, transparent 50%),
+    linear-gradient(165deg, #1a0c0e 0%, #3d1518 38%, #7a2430 72%, #a8324c 100%);
+}
+
+/* Contenedor oscuro (acordeones, barras colapsables) */
+.isanami-panel {
+  border-radius: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(26, 12, 16, 0.94);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+}
+
+.isanami-panel-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(18, 8, 10, 0.98);
+  color: #faf9f6;
+  transition: background-color 150ms ease;
+}
+
+.isanami-panel-header:hover {
+  background-color: #1a0c10;
+}
+
+.isanami-panel-header h1,
+.isanami-panel-header h2,
+.isanami-panel-header h3,
+.isanami-panel-header p,
+.isanami-panel-header span,
+.isanami-panel-header button {
+  color: inherit;
+}
+
+/* Tarjetas y contenido expandido legible */
+.isanami-surface {
+  @apply rounded-lg border border-sakura-300/35 text-sumi-900 backdrop-blur-sm;
+  background-color: rgba(250, 249, 246, 0.97);
+  box-shadow: 0 8px 28px rgba(80, 16, 24, 0.22);
+  color: #121213;
+}
+
+.isanami-surface :is(p, span, li, label, strong, button) {
+  color: inherit;
+}
+
+.isanami-panel-body {
+  background-color: rgba(250, 249, 246, 0.97);
+  @apply text-sumi-900;
+}
+
+.isanami-table thead {
+  @apply border-b border-sakura-300/30 bg-sakura-600/25 text-left text-washi-50;
+}
+
+.isanami-panel-body .isanami-table thead {
+  @apply border-b border-sakura-200 bg-sakura-100/90 text-sumi-900;
+}
+
+.isanami-panel-body .isanami-table tbody {
+  @apply text-sumi-900;
+}
+
+.isanami-surface .isanami-table thead {
+  @apply border-b border-sakura-200 bg-sakura-100/90 text-sumi-900;
+}
+
+.isanami-surface .isanami-table tbody {
+  @apply text-sumi-900;
+}
+
+.isanami-table th {
+  @apply px-4 py-2;
+}
+
+.isanami-table td {
+  @apply px-4 py-2;
+}
+
+.isanami-table tbody tr {
+  @apply border-b border-sakura-200/50;
+}
+
+.isanami-field {
+  @apply w-full rounded-md border border-sakura-200 bg-white/95 px-3 py-2 text-sm text-sumi-900 placeholder:text-sumi-700/50 outline-none transition focus:border-sakura-500 focus:ring-2 focus:ring-sakura-300/60 disabled:opacity-60;
+}
+
+/* Dashboard: texto claro por defecto sobre fondo sakura */
+.isanami-dashboard {
+  color: #faf9f6;
+}
+
+.isanami-dashboard h1.text-2xl,
+.isanami-dashboard h2,
+.isanami-dashboard h3 {
+  color: #faf9f6;
+}
+
+/* Texto oscuro explícito fuera de paneles claros → blanco */
+.isanami-dashboard :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
+  color: #faf9f6;
+}
+
+/* Prioridad: texto legible dentro de superficies claras */
+.isanami-dashboard .isanami-panel-body :is(.text-sumi-900, .text-sumi-800, .text-sumi-700),
+.isanami-dashboard .isanami-surface :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
+  color: #121213;
+}
+
+/* Restaurar texto oscuro dentro de zonas claras */
+.isanami-panel-body,
+.isanami-panel-body :is(p, span, li, label, strong, div, td, th) {
+  color: #121213;
+}
+
+.isanami-panel-body :is(.text-sumi-900, .text-sumi-800, .text-sumi-700),
+.isanami-surface :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
+  color: #121213;
+}
+
+.isanami-panel-body .text-sumi-800,
+.isanami-surface .text-sumi-800,
+.isanami-dashboard .isanami-panel-body .text-sumi-800,
+.isanami-dashboard .isanami-surface .text-sumi-800 {
+  color: #1c1c1e;
+}
+
+.isanami-panel-body .text-sumi-700,
+.isanami-surface .text-sumi-700,
+.isanami-dashboard .isanami-panel-body .text-sumi-700,
+.isanami-dashboard .isanami-surface .text-sumi-700 {
+  color: #2b2b2e;
+}
+
+/* Chips y botones con fondo claro sobre el dashboard */
+.isanami-light-chip {
+  color: #1c1c1e !important;
+}
+
+.isanami-panel-header .isanami-light-chip {
+  color: #1c1c1e !important;
+}
+
+/* Scroll horizontal para listas de categorías / chips */
+.isanami-category-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 75, 102, 0.55) rgba(250, 249, 246, 0.5);
+}
+
+.isanami-category-scroll > button,
+.isanami-category-scroll > a {
+  scroll-snap-align: start;
+}
+
+.isanami-category-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.isanami-category-scroll::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(250, 249, 246, 0.6);
+}
+
+.isanami-category-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(201, 75, 102, 0.55);
+}
+
+.isanami-touch-target {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.isanami-safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+}
+
+.isanami-mobile-dock {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Encabezados oscuros: siempre texto blanco */
+.isanami-panel-header :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
+  color: #faf9f6;
+}
+
+/* Enlaces sobre fondo oscuro */
+.isanami-dashboard a:not(.isanami-panel-body a):not(.isanami-surface a) {
+  color: #faf9f6;
+}
+
+.isanami-dashboard a:not(.isanami-panel-body a):not(.isanami-surface a):hover {
+  color: #ffffff;
+}
+
+:focus-visible {
+  outline: 2px solid theme(colors.sakura.500);
+  outline-offset: 2px;
+}
+
+@media print {
+  aside,
+  header,
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  body {
+    background: white !important;
+  }
+}
