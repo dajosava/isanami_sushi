@@ -390,7 +390,7 @@ export function MesaPedidoClient({
                     </span>
                     <span className="flex shrink-0 flex-col items-end gap-1">
                       <span className="text-sumi-700">{item.estado_cocina}</span>
-                      {item.estado_cocina === "pendiente" && (
+                      {["pendiente", "en_preparacion"].includes(item.estado_cocina) && (
                         <button
                           type="button"
                           className="text-xs text-umeboshi-500 underline disabled:opacity-50"

@@ -5,15 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import {
-  UtensilsCrossed,
+  ClipboardList,
   ChefHat,
   Receipt,
-  Boxes,
-  Calculator,
+  Package,
+  ShoppingCart,
+  Landmark,
+  BarChart3,
+  Users,
+  LayoutGrid,
+  BookOpen,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
-  BarChart3,
 } from "lucide-react";
 import type { Rol } from "@/lib/auth/roles";
 
@@ -25,16 +29,16 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/pedidos", label: "Pedidos", icon: UtensilsCrossed, roles: ["admin", "gerente", "cajero", "mesero"] },
+  { href: "/pedidos", label: "Pedidos", icon: ClipboardList, roles: ["admin", "gerente", "cajero", "mesero"] },
   { href: "/cocina", label: "Cocina", icon: ChefHat, roles: ["admin", "gerente", "cocina"] },
   { href: "/facturacion", label: "Facturacion", icon: Receipt, roles: ["admin", "gerente", "cajero"] },
-  { href: "/inventario/insumos", label: "Inventario", icon: Boxes, roles: ["admin", "gerente"] },
-  { href: "/inventario/compras", label: "Compras", icon: Boxes, roles: ["admin", "gerente"] },
-  { href: "/contabilidad/cierres", label: "Contabilidad", icon: Calculator, roles: ["admin", "gerente", "contador", "cajero"] },
+  { href: "/inventario/insumos", label: "Inventario", icon: Package, roles: ["admin", "gerente"] },
+  { href: "/inventario/compras", label: "Compras", icon: ShoppingCart, roles: ["admin", "gerente"] },
+  { href: "/contabilidad/cierres", label: "Contabilidad", icon: Landmark, roles: ["admin", "gerente", "contador", "cajero"] },
   { href: "/analitica", label: "Analitica", icon: BarChart3, roles: ["admin", "gerente", "contador"] },
-  { href: "/admin/usuarios", label: "Usuarios", icon: Settings, roles: ["admin"] },
-  { href: "/admin/mesas", label: "Mesas", icon: Settings, roles: ["admin", "gerente"] },
-  { href: "/admin/menu", label: "Menu", icon: Settings, roles: ["admin"] },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users, roles: ["admin"] },
+  { href: "/admin/mesas", label: "Mesas", icon: LayoutGrid, roles: ["admin", "gerente"] },
+  { href: "/admin/menu", label: "Menu", icon: BookOpen, roles: ["admin"] },
   { href: "/admin/configuracion", label: "Config", icon: Settings, roles: ["admin"] },
 ];
 

@@ -250,47 +250,87 @@ export async function anularPedido(pedidoId: string) {
 }
 
 /**
- * Quita un item del pedido si aun no se preparo (estado_cocina = pendiente).
+ * Quita un item del pedido (pendiente o en preparacion) y lo saca de comandas.
  */
 export async function eliminarItemPedido(pedidoItemId: string) {
   const supabase = createClient();
 
-  const { data: item, error: errorItem } = await supabase
-    .from("pedido_items")
-    .select("id, pedido_id, estado_cocina, pedidos(id, mesa_id, tipo, estado)")
-    .eq("id", pedidoItemId)
-    .single();
+  const { data, error } = await supabase.rpc("eliminar_pedido_item", {
+    p_item_id: pedidoItemId,
+  });
 
-  if (errorItem || !item) {
-    return { ok: false as const, error: errorItem?.message ?? "Item no encontrado" };
+  // Fallback si la migracion 0020 aun no esta aplicada
+  if (error && (error.message.includes("eliminar_pedido_item") || error.code === "PGRST202")) {
+    const { data: item, error: errorItem } = await supabase
+      .from("pedido_items")
+      .select("id, pedido_id, estado_cocina, pedidos(id, mesa_id, tipo, estado)")
+      .eq("id", pedidoItemId)
+      .single();
+
+    if (errorItem || !item) {
+      return { ok: false as const, error: errorItem?.message ?? "Item no encontrado" };
+    }
+
+    if (!["pendiente", "en_preparacion"].includes(item.estado_cocina)) {
+      return {
+        ok: false as const,
+        error: "Solo se pueden quitar items pendientes o en preparacion",
+      };
+    }
+
+    const pedido = Array.isArray(item.pedidos) ? item.pedidos[0] : item.pedidos;
+    if (!pedido || ["cerrado", "anulado"].includes(pedido.estado)) {
+      return { ok: false as const, error: "El pedido ya no admite cambios" };
+    }
+
+    const { data: deleted, error: errorDelete } = await supabase
+      .from("pedido_items")
+      .delete()
+      .eq("id", pedidoItemId)
+      .select("id");
+
+    if (errorDelete) return { ok: false as const, error: errorDelete.message };
+    if (!deleted?.length) {
+      return {
+        ok: false as const,
+        error:
+          "No se pudo eliminar el item. Aplica la migracion 0020_eliminar_pedido_item.sql en Supabase.",
+      };
+    }
+
+    const { data: restantes } = await supabase
+      .from("pedido_items")
+      .select("id")
+      .eq("pedido_id", item.pedido_id);
+
+    if (!restantes || restantes.length === 0) {
+      await anularPedido(item.pedido_id);
+    } else {
+      revalidatePath("/cocina");
+      revalidateRutasPedido(pedido);
+    }
+
+    return { ok: true as const };
   }
 
-  if (item.estado_cocina !== "pendiente") {
-    return {
-      ok: false as const,
-      error: "Solo se pueden quitar items pendientes (aun no en preparacion)",
-    };
-  }
-
-  const pedido = Array.isArray(item.pedidos) ? item.pedidos[0] : item.pedidos;
-  if (!pedido || ["cerrado", "anulado"].includes(pedido.estado)) {
-    return { ok: false as const, error: "El pedido ya no admite cambios" };
-  }
-
-  const { error } = await supabase.from("pedido_items").delete().eq("id", pedidoItemId);
   if (error) return { ok: false as const, error: error.message };
 
-  // Si no quedan items, anular el pedido y liberar mesa
-  const { data: restantes } = await supabase
-    .from("pedido_items")
-    .select("id")
-    .eq("pedido_id", item.pedido_id);
+  const result = (data ?? {}) as {
+    pedido_id?: string;
+    restantes?: number;
+    mesa_id?: string | null;
+    tipo?: string;
+  };
 
-  if (!restantes || restantes.length === 0) {
-    await anularPedido(item.pedido_id);
-  } else {
+  if ((result.restantes ?? 0) === 0 && result.pedido_id) {
+    await anularPedido(result.pedido_id);
+  } else if (result.pedido_id) {
     revalidatePath("/cocina");
-    revalidateRutasPedido(pedido);
+    revalidateRutasPedido({
+      id: result.pedido_id,
+      mesa_id: result.mesa_id ?? null,
+      tipo: result.tipo ?? "salon",
+    });
   }
 
   return { ok: true as const };
