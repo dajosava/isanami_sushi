@@ -1,31 +1,45 @@
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+"use client";
 
+import { useEffect } from "react";
+import { AppTransitionOverlay, IsanamiLogoLoader } from "@/components/ui/app-transition";
+import { useNavigationLoading } from "@/components/providers/navigation-progress";
+
+/** Carga inline (dentro de una pagina). */
 export function PageLoader({ label = "Cargando..." }: { label?: string }) {
   return (
     <div
-      className="flex min-h-[40vh] flex-col items-center justify-center gap-3 py-16"
+      className="flex min-h-[40vh] flex-col items-center justify-center gap-4 py-16"
       role="status"
       aria-live="polite"
       aria-busy="true"
+      aria-label={label}
     >
-      <LoadingSpinner size="lg" />
-      <p className="text-sm text-washi-50/85">{label}</p>
+      <IsanamiLogoLoader size="md" />
+      <p className="text-sm text-washi/85">{label}</p>
+      <div className="h-1 w-40 overflow-hidden rounded-full bg-washi/15">
+        <div className="h-full w-1/3 animate-shimmer-bar rounded-full bg-gradient-to-r from-transparent via-vermillion to-transparent" />
+      </div>
     </div>
   );
 }
 
+/**
+ * Overlay a pantalla completa — misma animacion que al abrir mesas.
+ * Dentro del dashboard reutiliza el overlay unico del NavigationLoadingProvider
+ * (sin remount / reinicio del logo).
+ */
 export function LoadingOverlay({ label = "Cargando..." }: { label?: string }) {
-  return (
-    <div
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/35 backdrop-blur-[2px]"
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <div className="isanami-panel flex flex-col items-center gap-3 px-8 py-6">
-        <LoadingSpinner size="lg" className="text-[#FF4D3A]" />
-        <p className="text-sm text-washi-50">{label}</p>
-      </div>
-    </div>
-  );
+  const { ready, beginRouteLoad, endRouteLoad } = useNavigationLoading();
+
+  useEffect(() => {
+    if (!ready) return;
+    beginRouteLoad(label);
+    return () => endRouteLoad();
+  }, [ready, label, beginRouteLoad, endRouteLoad]);
+
+  if (!ready) {
+    return <AppTransitionOverlay message={label} />;
+  }
+
+  return null;
 }

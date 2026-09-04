@@ -8,6 +8,7 @@ import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { formatColon } from "@/lib/utils";
 import { LoadingOverlay } from "@/components/ui/page-loader";
+import { useNavigationLoading } from "@/components/providers/navigation-progress";
 import { crearComprobante } from "@/actions/facturacion.actions";
 
 type MedioPago = "efectivo" | "tarjeta" | "sinpe" | "mixto";
@@ -21,6 +22,7 @@ export function FormularioCobro({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { start: startNav } = useNavigationLoading();
   const [medioPago, setMedioPago] = useState<MedioPago>("efectivo");
   const [montoRecibido, setMontoRecibido] = useState(String(Math.ceil(total)));
   const [pending, startTransition] = useTransition();
@@ -48,6 +50,7 @@ export function FormularioCobro({
       }
 
       toast("Comprobante creado", "exito");
+      startNav("Cargando facturación...");
       router.push("/facturacion");
       router.refresh();
     });

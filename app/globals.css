@@ -3,40 +3,89 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --sumi-1: #120a0d;
+  --sumi-2: #1c1013;
+  --sumi-3: #25141a;
+  --washi: #f4ecdf;
+  --washi-dim: #e7dcc9;
+  --vermillion: #c8402f;
+  --vermillion-deep: #9c2e21;
+  --sakura: #eec3cc;
+  --sakura-deep: #dc8fa0;
+  --gold: #c9a35c;
+  --gold-dim: #8a743f;
+  --ink: #2a1c1a;
+  --font-sans: "Zen Maru Gothic", sans-serif;
+  --font-display: "Shippori Mincho", serif;
 }
 
 body {
-  @apply bg-washi-50 text-sumi-900 antialiased;
+  @apply font-sans antialiased;
+  color: var(--washi);
+  background: var(--sumi-1);
 }
 
-/* Fondo sakura compartido (login + sidebar + dashboard) */
-.bg-isanami-sakura {
+/* Fondo principal sumi + resplandores + seigaiha + grano */
+.bg-isanami-sakura,
+.bg-isanami-sumi {
+  position: relative;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 15%, #c94b66 0%, transparent 55%),
-    radial-gradient(ellipse 90% 70% at 50% 100%, #6b2416 0%, transparent 50%),
-    linear-gradient(165deg, #1a0c0e 0%, #3d1518 38%, #7a2430 72%, #a8324c 100%);
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(200, 64, 47, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 88% 82%, rgba(201, 163, 92, 0.14) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(37, 20, 26, 0.9) 0%, transparent 60%),
+    linear-gradient(165deg, var(--sumi-1) 0%, var(--sumi-2) 42%, var(--sumi-3) 100%);
 }
 
-/* Contenedor oscuro (acordeones, barras colapsables) */
+.bg-isanami-sakura::before,
+.bg-isanami-sumi::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath fill='none' stroke='%23c9a35c' stroke-width='1' d='M0 20c10 0 10-12 20-12s10 12 20 12 10-12 20-12 10 12 20 12'/%3E%3Cpath fill='none' stroke='%23c9a35c' stroke-width='1' d='M0 40c10 0 10-12 20-12s10 12 20 12 10-12 20-12 10 12 20 12'/%3E%3C/svg%3E");
+  background-size: 80px 40px;
+}
+
+.bg-isanami-sakura::after,
+.bg-isanami-sumi::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.bg-isanami-washi {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(201, 163, 92, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, var(--washi) 0%, var(--washi-dim) 100%);
+  color: var(--ink);
+}
+
+/* Paneles / cards */
 .isanami-panel {
+  position: relative;
+  overflow: hidden;
   border-radius: 0.625rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(26, 12, 16, 0.94);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 163, 92, 0.28);
+  background-color: rgba(244, 236, 223, 0.08);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
 }
 
 .isanami-panel-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(18, 8, 10, 0.98);
-  color: #faf9f6;
+  border-bottom: 1px solid rgba(201, 163, 92, 0.22);
+  background: linear-gradient(180deg, rgba(18, 10, 13, 0.72) 0%, rgba(28, 16, 19, 0.88) 100%);
+  color: var(--washi);
   transition: background-color 150ms ease;
 }
 
 .isanami-panel-header:hover {
-  background-color: #1a0c10;
+  background: linear-gradient(180deg, rgba(28, 16, 19, 0.85) 0%, rgba(37, 20, 26, 0.95) 100%);
 }
 
 .isanami-panel-header h1,
@@ -48,12 +97,12 @@ body {
   color: inherit;
 }
 
-/* Tarjetas y contenido expandido legible */
 .isanami-surface {
-  @apply rounded-lg border border-sakura-300/35 text-sumi-900 backdrop-blur-sm;
-  background-color: rgba(250, 249, 246, 0.97);
-  box-shadow: 0 8px 28px rgba(80, 16, 24, 0.22);
-  color: #121213;
+  @apply rounded-lg text-ink backdrop-blur-sm;
+  border: 1px solid rgba(201, 163, 92, 0.35);
+  background-color: rgba(244, 236, 223, 0.96);
+  box-shadow: 0 8px 28px rgba(18, 10, 13, 0.28);
+  color: var(--ink);
 }
 
 .isanami-surface :is(p, span, li, label, strong, button) {
@@ -61,108 +110,111 @@ body {
 }
 
 .isanami-panel-body {
-  background-color: rgba(250, 249, 246, 0.97);
-  @apply text-sumi-900;
+  background-color: rgba(244, 236, 223, 0.96);
+  color: var(--ink);
 }
 
 .isanami-table thead {
-  @apply border-b border-sakura-300/30 bg-sakura-600/25 text-left text-washi-50;
+  border-bottom: 1px solid rgba(201, 163, 92, 0.3);
+  background: rgba(156, 46, 33, 0.35);
+  color: var(--washi);
+  text-align: left;
 }
 
-.isanami-panel-body .isanami-table thead {
-  @apply border-b border-sakura-200 bg-sakura-100/90 text-sumi-900;
-}
-
-.isanami-panel-body .isanami-table tbody {
-  @apply text-sumi-900;
-}
-
+.isanami-panel-body .isanami-table thead,
 .isanami-surface .isanami-table thead {
-  @apply border-b border-sakura-200 bg-sakura-100/90 text-sumi-900;
+  background: rgba(201, 163, 92, 0.18);
+  color: var(--ink);
+  border-bottom: 1px solid rgba(138, 116, 63, 0.35);
 }
 
+.isanami-panel-body .isanami-table tbody,
 .isanami-surface .isanami-table tbody {
-  @apply text-sumi-900;
+  color: var(--ink);
 }
 
-.isanami-table th {
-  @apply px-4 py-2;
-}
-
+.isanami-table th,
 .isanami-table td {
   @apply px-4 py-2;
 }
 
 .isanami-table tbody tr {
-  @apply border-b border-sakura-200/50;
+  border-bottom: 1px solid rgba(231, 220, 201, 0.7);
 }
 
 .isanami-field {
-  @apply w-full rounded-md border border-sakura-200 bg-white/95 px-3 py-2 text-sm text-sumi-900 placeholder:text-sumi-700/50 outline-none transition focus:border-sakura-500 focus:ring-2 focus:ring-sakura-300/60 disabled:opacity-60;
+  @apply w-full rounded-md px-3 py-2 text-sm outline-none transition disabled:opacity-60;
+  border: 1px solid rgba(138, 116, 63, 0.35);
+  background: rgba(244, 236, 223, 0.95);
+  color: var(--ink);
 }
 
-/* Dashboard: texto claro por defecto sobre fondo sakura */
+.isanami-field:focus {
+  border-color: var(--vermillion);
+  box-shadow: 0 0 0 3px rgba(200, 64, 47, 0.2);
+}
+
+.isanami-field::placeholder {
+  color: rgba(42, 28, 26, 0.45);
+}
+
+/* Dashboard sobre fondo oscuro */
 .isanami-dashboard {
-  color: #faf9f6;
+  color: var(--washi);
 }
 
-.isanami-dashboard h1.text-2xl,
-.isanami-dashboard h2,
-.isanami-dashboard h3 {
-  color: #faf9f6;
+.isanami-dashboard h1,
+.isanami-dashboard h2.font-display,
+.isanami-dashboard h3.font-display {
+  color: var(--washi);
 }
 
-/* Texto oscuro explícito fuera de paneles claros → blanco */
 .isanami-dashboard :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
-  color: #faf9f6;
+  color: var(--washi);
 }
 
-/* Prioridad: texto legible dentro de superficies claras */
 .isanami-dashboard .isanami-panel-body :is(.text-sumi-900, .text-sumi-800, .text-sumi-700),
 .isanami-dashboard .isanami-surface :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
-  color: #121213;
+  color: var(--ink);
 }
 
-/* Restaurar texto oscuro dentro de zonas claras */
 .isanami-panel-body,
 .isanami-panel-body :is(p, span, li, label, strong, div, td, th) {
-  color: #121213;
+  color: var(--ink);
 }
 
 .isanami-panel-body :is(.text-sumi-900, .text-sumi-800, .text-sumi-700),
 .isanami-surface :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
-  color: #121213;
+  color: var(--ink);
 }
 
 .isanami-panel-body .text-sumi-800,
 .isanami-surface .text-sumi-800,
 .isanami-dashboard .isanami-panel-body .text-sumi-800,
 .isanami-dashboard .isanami-surface .text-sumi-800 {
-  color: #1c1c1e;
+  color: #3d2a28;
 }
 
 .isanami-panel-body .text-sumi-700,
 .isanami-surface .text-sumi-700,
 .isanami-dashboard .isanami-panel-body .text-sumi-700,
 .isanami-dashboard .isanami-surface .text-sumi-700 {
-  color: #2b2b2e;
+  color: #5a4542;
 }
 
-/* Chips y botones con fondo claro sobre el dashboard */
 .isanami-light-chip {
-  color: #1c1c1e !important;
+  color: var(--ink) !important;
 }
 
 .isanami-panel-header .isanami-light-chip {
-  color: #1c1c1e !important;
+  color: var(--ink) !important;
 }
 
-/* Scroll horizontal para listas de categorías / chips */
 .isanami-category-scroll {
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
-  scrollbar-color: rgba(201, 75, 102, 0.55) rgba(250, 249, 246, 0.5);
+  scrollbar-color: rgba(200, 64, 47, 0.55) rgba(244, 236, 223, 0.5);
 }
 
 .isanami-category-scroll > button,
@@ -176,12 +228,12 @@ body {
 
 .isanami-category-scroll::-webkit-scrollbar-track {
   border-radius: 999px;
-  background: rgba(250, 249, 246, 0.6);
+  background: rgba(244, 236, 223, 0.55);
 }
 
 .isanami-category-scroll::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(201, 75, 102, 0.55);
+  background: rgba(200, 64, 47, 0.55);
 }
 
 .isanami-touch-target {
@@ -197,23 +249,277 @@ body {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
 }
 
-/* Encabezados oscuros: siempre texto blanco */
 .isanami-panel-header :is(.text-sumi-900, .text-sumi-800, .text-sumi-700) {
-  color: #faf9f6;
+  color: var(--washi);
 }
 
-/* Enlaces sobre fondo oscuro */
 .isanami-dashboard a:not(.isanami-panel-body a):not(.isanami-surface a) {
-  color: #faf9f6;
+  color: var(--washi);
 }
 
 .isanami-dashboard a:not(.isanami-panel-body a):not(.isanami-surface a):hover {
   color: #ffffff;
 }
 
+/* Título de sección con kanji + línea dorada */
+.isanami-section-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.isanami-section-kanji {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: none;
+  color: var(--gold-dim);
+}
+
+.isanami-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.isanami-section-heading::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201, 163, 92, 0.7), transparent 90%);
+}
+
+/* Tarjeta de mesa */
+.isanami-mesa-card {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(201, 163, 92, 0.32);
+  background: rgba(244, 236, 223, 0.1);
+  backdrop-filter: blur(8px);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.isanami-mesa-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 10px;
+  background-image: radial-gradient(circle, rgba(201, 163, 92, 0.75) 1.1px, transparent 1.3px);
+  background-size: 8px 8px;
+  background-position: center 4px;
+  opacity: 0.85;
+}
+
+.isanami-mesa-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(201, 163, 92, 0.65);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+}
+
+.isanami-hanko {
+  pointer-events: none;
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1.5px solid rgba(200, 64, 47, 0.55);
+  border-radius: 0.2rem;
+  color: rgba(200, 64, 47, 0.55);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  transform: rotate(-12deg);
+  opacity: 0.85;
+}
+
 :focus-visible {
-  outline: 2px solid theme(colors.sakura.500);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+/* Overlay de transicion entre modulos (DOM imperativo) */
+#isanami-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(200, 64, 47, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 88% 82%, rgba(201, 163, 92, 0.14) 0%, transparent 50%),
+    linear-gradient(165deg, #120a0d 0%, #1c1013 42%, #25141a 100%);
+  pointer-events: all;
+}
+
+#isanami-transition-overlay[data-visible="1"] {
+  display: flex;
+}
+
+#isanami-transition-overlay .isanami-transition-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+#isanami-transition-overlay .isanami-transition-logo-wrap {
+  margin-bottom: 1.5rem;
+  animation: isanami-logo-enter 0.9s ease-out both;
+}
+
+#isanami-transition-overlay .isanami-transition-logo {
+  width: 10rem;
+  height: auto;
+  border-radius: 9999px;
+  border: 2px solid rgba(244, 236, 223, 0.8);
+  box-shadow:
+    0 0 0 2px rgba(200, 64, 47, 0.3),
+    0 8px 32px rgba(156, 46, 33, 0.45);
+}
+
+@media (min-width: 640px) {
+  #isanami-transition-overlay .isanami-transition-logo {
+    width: 11rem;
+  }
+}
+
+#isanami-transition-overlay .isanami-transition-kanji {
+  margin-bottom: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--gold-dim);
+}
+
+#isanami-transition-overlay .isanami-transition-msg {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--washi);
+  animation: isanami-fade-up 0.7s ease-out both;
+}
+
+@media (min-width: 640px) {
+  #isanami-transition-overlay .isanami-transition-msg {
+    font-size: 1.125rem;
+  }
+}
+
+#isanami-transition-overlay .isanami-transition-bar {
+  margin-top: 2rem;
+  width: 12rem;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(244, 236, 223, 0.15);
+}
+
+@media (min-width: 640px) {
+  #isanami-transition-overlay .isanami-transition-bar {
+    width: 14rem;
+  }
+}
+
+#isanami-transition-overlay .isanami-transition-bar span {
+  display: block;
+  width: 33%;
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, var(--vermillion), transparent);
+  animation: isanami-shimmer 1.4s ease-in-out infinite;
+}
+
+#isanami-transition-overlay .isanami-transition-dots {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+#isanami-transition-overlay .isanami-transition-dots i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--gold);
+  animation: isanami-bounce-dot 1.2s ease-in-out infinite;
+}
+
+#isanami-transition-overlay .isanami-transition-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+#isanami-transition-overlay .isanami-transition-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes isanami-logo-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes isanami-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes isanami-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(380%);
+  }
+}
+
+@keyframes isanami-bounce-dot {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  40% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
 }
 
 @media print {
@@ -230,5 +536,9 @@ body {
 
   body {
     background: white !important;
+  }
+
+  #isanami-transition-overlay {
+    display: none !important;
   }
 }

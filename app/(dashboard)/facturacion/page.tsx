@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FacturacionLista } from "@/components/facturacion/facturacion-lista";
+import { SectionTitle } from "@/components/ui/section-title";
 
 export default async function FacturacionPage() {
   const supabase = createClient();
@@ -12,9 +13,7 @@ export default async function FacturacionPage() {
 
   return (
     <div>
-      <h1 className="mb-4 font-display text-xl text-washi-50 sm:mb-6 sm:text-2xl">
-        Comprobantes de cobro
-      </h1>
+      <SectionTitle kanji="会計" title="Comprobantes de cobro" className="mb-6" />
 
       <Card className="overflow-hidden">
         <CardHeader>

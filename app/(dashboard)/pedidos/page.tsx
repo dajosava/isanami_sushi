@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PedidosMesasClient } from "@/components/pedidos/pedidos-mesas-client";
+import { SectionTitle } from "@/components/ui/section-title";
 
 export default async function PedidosPage() {
   const supabase = createClient();
@@ -8,7 +9,7 @@ export default async function PedidosPage() {
     supabase.from("mesas").select("id, numero, zona, capacidad, estado").order("numero"),
     supabase
       .from("pedidos")
-      .select("id, estado, creado_en, pedido_items(count)")
+      .select("id, estado, creado_en, nombre_cliente, pedido_items(count)")
       .eq("tipo", "para_llevar")
       .is("mesa_id", null)
       .in("estado", ["abierto", "enviado", "en_preparacion", "servido"])
@@ -20,12 +21,13 @@ export default async function PedidosPage() {
       id: pedido.id,
       estado: pedido.estado,
       creadoEn: pedido.creado_en,
+      nombreCliente: pedido.nombre_cliente,
       items: (pedido.pedido_items as { count: number }[] | null)?.[0]?.count ?? 0,
     })) ?? [];
 
   return (
     <div>
-      <h1 className="mb-4 font-display text-xl text-washi-50 sm:mb-6 sm:text-2xl">Pedidos</h1>
+      <SectionTitle kanji="注文" title="Pedidos" className="mb-6" />
       <PedidosMesasClient mesas={mesas ?? []} pedidosParaLlevar={paraLlevar} />
     </div>
   );

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { PageLoader } from "@/components/ui/page-loader";
 import type { Rol } from "@/lib/auth/roles";
 
 const STORAGE_KEY = "isanami-sidebar-collapsed";
@@ -22,7 +21,6 @@ export function DashboardShell({
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     try {
@@ -31,7 +29,6 @@ export function DashboardShell({
     } catch {
       // ignore
     }
-    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -55,14 +52,6 @@ export function DashboardShell({
       }
       return next;
     });
-  }
-
-  if (!ready) {
-    return (
-      <div className="flex min-h-screen bg-isanami-sakura">
-        <PageLoader label="Iniciando..." />
-      </div>
-    );
   }
 
   return (
@@ -95,8 +84,8 @@ export function DashboardShell({
           nombreUsuario={nombreUsuario}
           onMenuClick={() => setMobileNavOpen(true)}
         />
-        <main className="isanami-dashboard flex-1 bg-isanami-sakura p-3 sm:p-4 lg:p-6">
-          {children}
+        <main className="isanami-dashboard relative flex-1 overflow-hidden bg-isanami-sumi p-3 sm:p-4 lg:p-6">
+          <div className="relative z-[1]">{children}</div>
         </main>
       </div>
     </div>

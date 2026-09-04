@@ -1,5 +1,5 @@
-import { AppTransitionOverlay } from "@/components/ui/app-transition";
+import { RouteLoadingFallback } from "@/components/providers/route-loading-fallback";
 
-export default function DashboardLoading() {
-  return <AppTransitionOverlay message="Cargando panel..." />;
+export default function Loading() {
+  return <RouteLoadingFallback />;
 }

@@ -1,44 +1,133 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { LoadingOverlay } from "@/components/ui/page-loader";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { usePathname } from "next/navigation";
+import {
+  beginRouteLoad as storeBegin,
+  endRouteLoad as storeEnd,
+  esNavegacionInterna,
+  getNavLoadingServerSnapshot,
+  getNavLoadingSnapshot,
+  mensajeParaRuta,
+  onPathnameChanged,
+  startNavLoading,
+  subscribeNavLoading,
+} from "@/lib/navigation-loading-store";
 
-function esNavegacionInterna(anchor: HTMLAnchorElement, pathname: string) {
-  const href = anchor.getAttribute("href");
-  if (!href || href.startsWith("#") || anchor.target === "_blank") return false;
-  if (href.startsWith("mailto:") || href.startsWith("tel:")) return false;
+export { mensajeParaRuta };
 
-  try {
-    const destino = new URL(href, window.location.origin);
-    if (destino.origin !== window.location.origin) return false;
-    if (destino.pathname === pathname && !destino.search) return false;
-    return true;
-  } catch {
-    return false;
-  }
+type Ctx = {
+  ready: boolean;
+  navegando: boolean;
+  start: (message?: string, destinoPathname?: string) => void;
+  beginRouteLoad: (message?: string) => void;
+  endRouteLoad: () => void;
+};
+
+const NavigationLoadingContext = createContext<Ctx>({
+  ready: false,
+  navegando: false,
+  start: () => undefined,
+  beginRouteLoad: () => undefined,
+  endRouteLoad: () => undefined,
+});
+
+export function useNavigationLoading() {
+  return useContext(NavigationLoadingContext);
 }
 
-export function NavigationProgress() {
+/**
+ * Overlay de transicion via DOM imperativo (#isanami-transition-overlay).
+ * No depende de portals/Suspense de React.
+ */
+export function NavigationLoadingProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [navegando, setNavegando] = useState(false);
+  const prevPath = useRef(pathname);
+  const snap = useSyncExternalStore(
+    subscribeNavLoading,
+    getNavLoadingSnapshot,
+    getNavLoadingServerSnapshot
+  );
 
-  useEffect(() => {
-    setNavegando(false);
-  }, [pathname, searchParams]);
+  const start = useCallback((message?: string, destinoPathname?: string) => {
+    startNavLoading(message, destinoPathname);
+  }, []);
 
+  const beginRouteLoad = useCallback((message?: string) => {
+    storeBegin(message);
+  }, []);
+
+  const endRouteLoad = useCallback(() => {
+    storeEnd();
+  }, []);
+
+  // Clics en cualquier Link interno (capture, antes de Next)
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      const anchor = (e.target as HTMLElement).closest("a");
-      if (!anchor || !esNavegacionInterna(anchor, pathname)) return;
-      setNavegando(true);
+      if (
+        e.defaultPrevented ||
+        e.button !== 0 ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey
+      ) {
+        return;
+      }
+      const anchor = (e.target as HTMLElement | null)?.closest?.("a");
+      if (!anchor || !(anchor instanceof HTMLAnchorElement)) return;
+      if (!esNavegacionInterna(anchor, pathname)) return;
+
+      try {
+        const destino = new URL(anchor.href, window.location.origin);
+        startNavLoading(mensajeParaRuta(destino.pathname), destino.pathname);
+      } catch {
+        startNavLoading();
+      }
     }
 
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
   }, [pathname]);
 
-  if (!navegando) return null;
-  return <LoadingOverlay label="Cargando página..." />;
+  useEffect(() => {
+    function onPopState() {
+      startNavLoading("Cargando...");
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  useEffect(() => {
+    if (prevPath.current !== pathname) {
+      prevPath.current = pathname;
+      onPathnameChanged(pathname);
+    }
+  }, [pathname]);
+
+  const value = useMemo(
+    () => ({
+      ready: true as const,
+      navegando: snap.visible,
+      start,
+      beginRouteLoad,
+      endRouteLoad,
+    }),
+    [snap.visible, start, beginRouteLoad, endRouteLoad]
+  );
+
+  return (
+    <NavigationLoadingContext.Provider value={value}>
+      {children}
+    </NavigationLoadingContext.Provider>
+  );
 }

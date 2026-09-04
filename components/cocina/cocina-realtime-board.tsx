@@ -18,6 +18,7 @@ interface ComandaItem {
 
 interface PedidoOrigen {
   tipo?: string;
+  nombre_cliente?: string | null;
   mesas?: { numero: number } | { numero: number }[] | null;
 }
 
@@ -32,7 +33,7 @@ interface Comanda {
 }
 
 const COMANDA_SELECT =
-  "id, pedido_id, estacion, estado, items, creada_en, pedidos(tipo, mesas(numero))";
+  "id, pedido_id, estacion, estado, items, creada_en, pedidos(tipo, nombre_cliente, mesas(numero))";
 
 function parseItems(items: Comanda["items"]): ComandaItem[] {
   if (Array.isArray(items)) return items as ComandaItem[];
@@ -42,8 +43,14 @@ function parseItems(items: Comanda["items"]): ComandaItem[] {
 function origenPedido(comanda: Comanda): string {
   const pedido = one(comanda.pedidos);
   if (!pedido) return "Origen desconocido";
-  if (pedido.tipo === "para_llevar") return "Para llevar";
-  if (pedido.tipo === "delivery") return "Delivery";
+  if (pedido.tipo === "para_llevar") {
+    const nombre = pedido.nombre_cliente?.trim();
+    return nombre ? `Para llevar · ${nombre}` : "Para llevar";
+  }
+  if (pedido.tipo === "delivery") {
+    const nombre = pedido.nombre_cliente?.trim();
+    return nombre ? `Delivery · ${nombre}` : "Delivery";
+  }
   const mesa = one(pedido.mesas);
   if (mesa?.numero != null) return `Mesa ${mesa.numero}`;
   return "Salón";

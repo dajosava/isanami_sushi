@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { SectionTitle } from "@/components/ui/section-title";
+import { kanjiMesa } from "@/components/ui/japanese-ornaments";
+import { formatHoraCR } from "@/lib/utils";
 
 interface Mesa {
   id: string;
@@ -16,6 +18,7 @@ interface PedidoParaLlevar {
   id: string;
   estado: string;
   creadoEn: string;
+  nombreCliente?: string | null;
   items: number;
 }
 
@@ -33,13 +36,6 @@ const PEDIDO_TONO = {
   servido: "exito",
 } as const;
 
-function formatearHora(iso: string) {
-  return new Date(iso).toLocaleTimeString("es-CR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export function PedidosMesasClient({
   mesas,
   pedidosParaLlevar,
@@ -48,65 +44,85 @@ export function PedidosMesasClient({
   pedidosParaLlevar: PedidoParaLlevar[];
 }) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <section>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-washi-50">Para llevar</h2>
-          <Link
-            href="/pedidos/para-llevar/nuevo"
-            className="inline-flex w-full items-center justify-center rounded-md bg-[#FF4D3A] px-4 py-2.5 text-sm font-medium text-white shadow-[0_4px_14px_rgba(255,77,58,0.35)] hover:opacity-90 xs:w-auto"
-          >
-            Nuevo pedido para llevar
-          </Link>
-        </div>
+        <SectionTitle
+          kanji="持帰"
+          title="Para llevar"
+          actions={
+            <Link
+              href="/pedidos/para-llevar/nuevo"
+              className="inline-flex w-full items-center justify-center rounded-md border border-gold/40 bg-gradient-to-b from-vermillion to-vermillion-deep px-4 py-2.5 text-sm font-medium text-washi shadow-lacquer transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(156,46,33,0.45)] xs:w-auto"
+            >
+              Nuevo pedido para llevar
+            </Link>
+          }
+        />
 
         {pedidosParaLlevar.length > 0 ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {pedidosParaLlevar.map((pedido) => (
-              <Card key={pedido.id} className="transition hover:border-sakura-400">
-                <Link href={`/pedidos/para-llevar/${pedido.id}`} className="block">
-                  <CardHeader className="mb-0">
-                    <CardTitle>Pedido {formatearHora(pedido.creadoEn)}</CardTitle>
-                    <Badge tono={PEDIDO_TONO[pedido.estado as keyof typeof PEDIDO_TONO] ?? "neutro"}>
-                      {pedido.estado}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <p className="text-sm font-medium text-sumi-900">
-                      {pedido.items} {pedido.items === 1 ? "producto" : "productos"}
+              <Link
+                key={pedido.id}
+                href={`/pedidos/para-llevar/${pedido.id}`}
+                className="isanami-mesa-card block p-4 pt-5"
+              >
+                <div className="relative z-[1] flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-display text-lg text-washi">
+                      {pedido.nombreCliente?.trim()
+                        ? pedido.nombreCliente.trim()
+                        : `Pedido ${formatHoraCR(pedido.creadoEn)}`}
                     </p>
-                  </CardContent>
-                </Link>
-              </Card>
+                    <p className="mt-1 text-sm text-washi/75">
+                      Para llevar · {pedido.items}{" "}
+                      {pedido.items === 1 ? "producto" : "productos"}
+                      {pedido.nombreCliente?.trim()
+                        ? ` · ${formatHoraCR(pedido.creadoEn)}`
+                        : ""}
+                    </p>
+                  </div>
+                  <Badge tono={PEDIDO_TONO[pedido.estado as keyof typeof PEDIDO_TONO] ?? "neutro"}>
+                    {pedido.estado}
+                  </Badge>
+                </div>
+              </Link>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-washi-50/80">
-            No hay pedidos para llevar abiertos. Crea uno nuevo para empezar.
-          </p>
+          <div className="isanami-panel border border-gold/25 px-4 py-5">
+            <p className="text-sm text-washi/70">
+              No hay pedidos para llevar abiertos. Crea uno nuevo para empezar.
+            </p>
+          </div>
         )}
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-washi-50">Mesas</h2>
+        <SectionTitle kanji="卓" title="Mesas" />
         <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {mesas.map((mesa) => (
-            <Card key={mesa.id} className="flex h-full flex-col transition hover:border-sakura-400">
-              <Link href={`/pedidos/${mesa.id}`} className="block flex-1">
-                <CardHeader className="mb-0">
-                  <CardTitle>Mesa {mesa.numero}</CardTitle>
-                  <Badge tono={ESTADO_TONO[mesa.estado as keyof typeof ESTADO_TONO] ?? "neutro"}>
-                    {mesa.estado}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-sumi-800">
+            <Link
+              key={mesa.id}
+              href={`/pedidos/${mesa.id}`}
+              className="isanami-mesa-card block p-4 pb-8 pt-5"
+            >
+              <div className="relative z-[1] flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-display text-lg text-washi">Mesa {mesa.numero}</p>
+                  <p className="mt-1 text-sm text-washi/75">
                     {mesa.zona ? `${mesa.zona} · ` : ""}
                     {mesa.capacidad} personas
                   </p>
-                </CardContent>
-              </Link>
-            </Card>
+                </div>
+                <Badge tono={ESTADO_TONO[mesa.estado as keyof typeof ESTADO_TONO] ?? "neutro"}>
+                  {mesa.estado}
+                </Badge>
+              </div>
+              <span className="isanami-hanko" aria-hidden>
+                {kanjiMesa(mesa.numero)}
+              </span>
+            </Link>
           ))}
         </div>
       </section>

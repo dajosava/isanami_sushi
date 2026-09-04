@@ -5,10 +5,12 @@ type Variant = "primary" | "secondary" | "danger" | "ghost";
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-[#FF4D3A] text-white shadow-[0_4px_14px_rgba(255,77,58,0.35)] hover:bg-[#FF3B26] hover:shadow-[0_6px_18px_rgba(255,59,38,0.45)]",
-  secondary: "border border-sakura-200 bg-sakura-100/80 text-sumi-900 hover:bg-sakura-200/80",
-  danger: "bg-umeboshi-500 text-white hover:opacity-90",
-  ghost: "bg-transparent text-sumi-900 hover:bg-sakura-100/60",
+    "border border-gold/40 bg-gradient-to-b from-vermillion to-vermillion-deep text-washi shadow-lacquer transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(156,46,33,0.45)]",
+  secondary:
+    "border border-gold/35 bg-washi/90 text-ink hover:bg-washi hover:border-gold/55",
+  danger:
+    "border border-vermillion/50 bg-vermillion-deep text-washi hover:opacity-90",
+  ghost: "bg-transparent text-washi hover:bg-white/10",
 };
 
 export function Button({

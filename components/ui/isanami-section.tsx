@@ -25,8 +25,8 @@ export function IsanamiSection({
 
   const header = (
     <div className="min-w-0">
-      <h2 className="font-display text-lg font-semibold text-washi-50">{title}</h2>
-      {subtitle ? <p className="text-xs text-washi-50/90">{subtitle}</p> : null}
+      <h2 className="font-display text-lg font-semibold text-washi">{title}</h2>
+      {subtitle ? <p className="text-xs text-washi/80">{subtitle}</p> : null}
     </div>
   );
 
@@ -42,7 +42,7 @@ export function IsanamiSection({
           {header}
           <ChevronDown
             size={18}
-            className={clsx("shrink-0 text-washi-50/80 transition-transform", abierta && "rotate-180")}
+            className={clsx("shrink-0 text-gold/80 transition-transform", abierta && "rotate-180")}
           />
         </button>
       ) : (

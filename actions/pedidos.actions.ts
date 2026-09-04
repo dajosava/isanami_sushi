@@ -33,8 +33,12 @@ export async function crearPedido(input: unknown) {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { ok: false as const, error: "No autenticado" };
 
-  const { mesaId, tipo, items, notas } = parsed.data;
+  const { mesaId, tipo, items, notas, nombreCliente } = parsed.data;
   const mesaIdFinal = tipo === "salon" ? mesaId : null;
+  const nombreFinal =
+    tipo === "para_llevar" || tipo === "delivery"
+      ? (nombreCliente?.trim().replace(/\s+/g, " ") || null)
+      : null;
 
   const { data: pedido, error: errorPedido } = await supabase
     .from("pedidos")
@@ -44,6 +48,7 @@ export async function crearPedido(input: unknown) {
       tipo,
       estado: "abierto",
       notas: notas ?? null,
+      nombre_cliente: nombreFinal,
     })
     .select()
     .single();

@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { formatColon } from "@/lib/utils";
 import { LoadingOverlay } from "@/components/ui/page-loader";
+import { useNavigationLoading } from "@/components/providers/navigation-progress";
 import { crearPedido, agregarItemsAPedido, enviarPedidoACocina, anularPedido, eliminarItemPedido } from "@/actions/pedidos.actions";
+import { esNombreClienteValido } from "@/lib/validators/pedido.schema";
 
 export interface ProductoMenu {
   id: string;
@@ -35,6 +37,7 @@ export interface PedidoItemActivo {
 export interface PedidoActivo {
   id: string;
   estado: string;
+  nombre_cliente?: string | null;
   pedido_items: PedidoItemActivo[] | null;
 }
 
@@ -67,9 +70,11 @@ export function MesaPedidoClient({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { start: startNav } = useNavigationLoading();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [pending, startTransition] = useTransition();
   const [categoriaActiva, setCategoriaActiva] = useState(categorias[0]?.id ?? "");
+  const [nombreCliente, setNombreCliente] = useState(pedidoActivo?.nombre_cliente ?? "");
 
   const cartTotal = useMemo(
     () => cart.reduce((acc, line) => acc + line.precio * line.cantidad, 0),
@@ -111,7 +116,13 @@ export function MesaPedidoClient({
     setCart((prev) => prev.map((l) => (l.productoId === productoId ? { ...l, notas } : l)));
   }
 
-  const encabezado = titulo ?? (mesaNumero != null ? `Mesa ${mesaNumero}` : "Pedido");
+  const encabezado =
+    titulo ??
+    (tipo === "para_llevar" && (pedidoActivo?.nombre_cliente || nombreCliente.trim())
+      ? `Para llevar · ${(pedidoActivo?.nombre_cliente || nombreCliente).trim()}`
+      : mesaNumero != null
+        ? `Mesa ${mesaNumero}`
+        : "Pedido");
   const textoVacio =
     mensajeVacio ??
     (tipo === "para_llevar"
@@ -122,6 +133,18 @@ export function MesaPedidoClient({
     if (cart.length === 0) {
       toast("Agrega al menos un producto", "peligro");
       return;
+    }
+
+    if (tipo === "para_llevar" && !pedidoActivo) {
+      const nombre = nombreCliente.trim().replace(/\s+/g, " ");
+      if (!nombre) {
+        toast("El nombre de quien pide es obligatorio", "peligro");
+        return;
+      }
+      if (!esNombreClienteValido(nombre)) {
+        toast("El nombre debe tener entre 2 y 25 caracteres", "peligro");
+        return;
+      }
     }
 
     const items = cart.map((l) => ({
@@ -137,6 +160,8 @@ export function MesaPedidoClient({
             mesaId: tipo === "salon" ? mesaId : null,
             tipo,
             items,
+            nombreCliente:
+              tipo === "para_llevar" ? nombreCliente.trim().replace(/\s+/g, " ") : undefined,
           });
 
       if (!result.ok) {
@@ -152,6 +177,7 @@ export function MesaPedidoClient({
       toast(pedidoActivo ? "Items agregados" : "Pedido creado", "exito");
 
       if (!pedidoActivo && tipo === "para_llevar" && "pedidoId" in result && result.pedidoId) {
+        startNav("Cargando pedido para llevar...");
         router.push(`/pedidos/para-llevar/${result.pedidoId}`);
         return;
       }
@@ -191,6 +217,7 @@ export function MesaPedidoClient({
       setCart([]);
       toast("Pedido anulado", "exito");
       if (tipo === "para_llevar") {
+        startNav("Cargando pedidos...");
         router.push("/pedidos");
         return;
       }
@@ -230,6 +257,35 @@ export function MesaPedidoClient({
         <h1 className="font-display text-xl text-washi-50 sm:text-2xl">{encabezado}</h1>
       </div>
 
+      {tipo === "para_llevar" ? (
+        <div className="mb-4 max-w-md">
+          <label className="mb-1.5 block text-sm font-medium text-washi/90" htmlFor="nombre-cliente-para-llevar">
+            Nombre de quien pide <span className="text-vermillion">*</span>
+          </label>
+          <Input
+            id="nombre-cliente-para-llevar"
+            value={nombreCliente}
+            onChange={(e) => {
+              const limpio = e.target.value.replace(/[^\p{L}\p{N} '\-]/gu, "").slice(0, 25);
+              setNombreCliente(limpio);
+            }}
+            placeholder="Ej. María López"
+            disabled={Boolean(pedidoActivo)}
+            required={!pedidoActivo}
+            maxLength={25}
+            autoComplete="name"
+            inputMode="text"
+            title="Máximo 25 caracteres"
+            className="border-gold/30 bg-washi text-ink placeholder:text-ink/40"
+          />
+          {!pedidoActivo ? (
+            <p className="mt-1 text-xs text-washi/60">
+              Obligatorio · máximo 25 caracteres. Se muestra en cocina en lugar del número de mesa.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 items-start gap-4 pb-32 lg:grid-cols-3 lg:gap-6 lg:pb-0">
       <div className="order-2 min-w-0 space-y-4 lg:order-1 lg:col-span-2">
         {categorias.length > 0 ? (
@@ -252,8 +308,8 @@ export function MesaPedidoClient({
                     onClick={() => setCategoriaActiva(categoria.id)}
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
                       categoriaSeleccionada?.id === categoria.id
-                        ? "bg-[#FF4D3A] text-white shadow-[0_4px_14px_rgba(255,77,58,0.35)]"
-                        : "isanami-light-chip border border-sakura-300/50 bg-washi-50 text-sumi-800 hover:border-sakura-400 hover:bg-white"
+                        ? "border border-gold/40 bg-gradient-to-b from-vermillion to-vermillion-deep text-washi shadow-lacquer"
+                        : "isanami-light-chip border border-gold/30 bg-washi text-ink hover:border-gold/50 hover:bg-washi-dim"
                     }`}
                   >
                     {categoria.nombre}

@@ -1,58 +1,69 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Paleta Isanami: base neutra tipo "washi" + acento indigo (ai-zome) + acento wasabi
-        washi: {
-          50: "#faf9f6",
-          100: "#f1efe8",
-          200: "#e4e0d3",
-        },
         sumi: {
-          700: "#2b2b2e",
-          800: "#1c1c1e",
-          900: "#121213",
+          1: "#120a0d",
+          2: "#1c1013",
+          3: "#25141a",
+          700: "#3d2a28",
+          800: "#2a1c1a",
+          900: "#120a0d",
+        },
+        washi: {
+          DEFAULT: "#f4ecdf",
+          dim: "#e7dcc9",
+          50: "#f4ecdf",
+          100: "#efe6d6",
+          200: "#e7dcc9",
+        },
+        vermillion: {
+          DEFAULT: "#c8402f",
+          deep: "#9c2e21",
+        },
+        sakura: {
+          DEFAULT: "#eec3cc",
+          deep: "#dc8fa0",
+          50: "#fbf3f5",
+          100: "#f6e6ea",
+          200: "#eec3cc",
+          300: "#e5a9b5",
+          400: "#dc8fa0",
+          500: "#c8402f",
+          600: "#9c2e21",
+        },
+        gold: {
+          DEFAULT: "#c9a35c",
+          dim: "#8a743f",
+        },
+        ink: "#2a1c1a",
+        wasabi: {
+          400: "#8fae5d",
+          500: "#6f9148",
+        },
+        umeboshi: {
+          400: "#d45a42",
+          500: "#c8402f",
+          600: "#9c2e21",
+          700: "#7a2419",
         },
         aizome: {
           500: "#2c4a63",
           600: "#213a4e",
           700: "#182b3b",
         },
-        wasabi: {
-          400: "#8fae5d",
-          500: "#71914a",
-        },
-        umeboshi: {
-          400: "#d45a42",
-          500: "#b3462c",
-          600: "#8f3420",
-          700: "#6b2416",
-        },
-        sakura: {
-          50: "#fff5f5",
-          100: "#ffe4e8",
-          200: "#ffc9d4",
-          300: "#f5a3b5",
-          400: "#e87a90",
-          500: "#c94b66",
-          600: "#a8324c",
-        },
+      },
+      fontFamily: {
+        sans: ["Zen Maru Gothic", "sans-serif"],
+        display: ["Shippori Mincho", "serif"],
       },
       keyframes: {
-        "petal-fall": {
-          "0%": { transform: "translateY(-10vh) translateX(0) rotate(0deg)", opacity: "0" },
-          "10%": { opacity: "1" },
-          "100%": { transform: "translateY(110vh) translateX(40px) rotate(360deg)", opacity: "0.2" },
-        },
         "soft-sway": {
-          "0%, 100%": { transform: "rotate(-1.5deg)" },
-          "50%": { transform: "rotate(1.5deg)" },
+          "0%, 100%": { transform: "rotate(-1.2deg)" },
+          "50%": { transform: "rotate(1.2deg)" },
         },
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(12px)" },
@@ -67,6 +78,10 @@ const config: Config = {
           "60%": { opacity: "1", transform: "scale(1.04)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
+        "logo-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.04)", opacity: "0.92" },
+        },
         "shimmer-bar": {
           "0%": { transform: "translateX(-120%)" },
           "100%": { transform: "translateX(380%)" },
@@ -77,11 +92,11 @@ const config: Config = {
         },
       },
       animation: {
-        "petal-fall": "petal-fall linear infinite",
-        "soft-sway": "soft-sway 6s ease-in-out infinite",
+        "soft-sway": "soft-sway 7s ease-in-out infinite",
         "fade-up": "fade-up 0.7s ease-out both",
         "fade-in": "fade-in 0.35s ease-out both",
         "logo-enter": "logo-enter 0.9s ease-out both",
+        "logo-pulse": "logo-pulse 1.6s ease-in-out infinite",
         "shimmer-bar": "shimmer-bar 1.4s ease-in-out infinite",
         "bounce-dot": "bounce-dot 1.2s ease-in-out infinite",
       },
@@ -92,6 +107,10 @@ const config: Config = {
       },
       screens: {
         xs: "480px",
+      },
+      boxShadow: {
+        lacquer: "0 8px 28px rgba(156, 46, 33, 0.35)",
+        washi: "0 10px 36px rgba(18, 10, 13, 0.35)",
       },
     },
   },
