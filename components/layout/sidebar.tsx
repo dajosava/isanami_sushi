@@ -18,6 +18,7 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
+  Clock,
 } from "lucide-react";
 import type { Rol } from "@/lib/auth/roles";
 import { SakuraBranch } from "@/components/ui/japanese-ornaments";
@@ -36,6 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/pedidos", label: "Pedidos", kanji: "注文", icon: ClipboardList, roles: ["admin", "gerente", "cajero", "mesero"] },
   { href: "/cocina", label: "Cocina", kanji: "厨房", icon: ChefHat, roles: ["admin", "gerente", "cocina"] },
   { href: "/facturacion", label: "Facturacion", kanji: "会計", icon: Receipt, roles: ["admin", "gerente", "cajero"] },
+  { href: "/planilla", label: "Planilla", kanji: "出勤", icon: Clock, roles: ["admin", "gerente", "cajero", "mesero", "cocina", "contador"] },
   { href: "/inventario/insumos", label: "Inventario", kanji: "在庫", icon: Package, roles: ["admin", "gerente"] },
   { href: "/inventario/compras", label: "Compras", kanji: "仕入", icon: ShoppingCart, roles: ["admin", "gerente"] },
   { href: "/contabilidad/cierres", label: "Contabilidad", kanji: "経理", icon: Landmark, roles: ["admin", "gerente", "contador", "cajero"] },

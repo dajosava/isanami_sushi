@@ -102,6 +102,7 @@ export async function actualizarUsuario(input: {
   if (error) return { ok: false as const, error: error.message };
 
   revalidatePath("/admin/usuarios");
+  revalidatePath("/planilla");
   return { ok: true as const };
 }
 

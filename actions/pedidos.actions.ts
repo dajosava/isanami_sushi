@@ -151,21 +151,24 @@ export async function enviarPedidoACocina(pedidoId: string) {
 
   if (!pedido) return { ok: false as const, error: "Pedido no encontrado" };
 
-  // Si ya esta enviado, generar comandas solo para items pendientes sin comanda
+  // Si ya esta enviado, generar comandas solo para items pendientes
+  // (los ya enviados quedan en en_preparacion / listo y no se reenvian)
   if (pedido.estado !== "abierto") {
     const { data: items } = await supabase
       .from("pedido_items")
-      .select("id, estado_cocina")
+      .select("id")
       .eq("pedido_id", pedidoId)
       .eq("estado_cocina", "pendiente");
 
-    if (items && items.length > 0) {
-      const { error: errorComandas } = await supabase.rpc("generar_comandas_para_items", {
-        p_pedido_id: pedidoId,
-        p_item_ids: items.map((i) => i.id),
-      });
-      if (errorComandas) return { ok: false as const, error: errorComandas.message };
+    if (!items || items.length === 0) {
+      return { ok: false as const, error: "No hay productos nuevos para enviar a cocina" };
     }
+
+    const { error: errorComandas } = await supabase.rpc("generar_comandas_para_items", {
+      p_pedido_id: pedidoId,
+      p_item_ids: items.map((i) => i.id),
+    });
+    if (errorComandas) return { ok: false as const, error: errorComandas.message };
   } else {
     const { error } = await supabase.from("pedidos").update({ estado: "enviado" }).eq("id", pedidoId);
     if (error) return { ok: false as const, error: error.message };

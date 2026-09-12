@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { AppTransitionOverlay } from "@/components/ui/app-transition";
+import { startNavLoading } from "@/lib/navigation-loading-store";
 
 function SakuraTree({ className, flip }: { className?: string; flip?: boolean }) {
   return (
@@ -79,95 +79,98 @@ export default function LoginPage() {
       return;
     }
 
+    // Solo la animacion de carga (overlay DOM) — sin formulario ni "Bienvenido"
     setEntering(true);
+    startNavLoading("Cargando...", "/pedidos");
     router.push("/pedidos");
     router.refresh();
   }
 
+  // Durante la entrada solo queda el overlay global de carga
+  if (entering) {
+    return null;
+  }
+
   return (
-    <>
-      {entering && <AppTransitionOverlay message="Bienvenido a Isanami" />}
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <div className="bg-isanami-sumi absolute inset-0" />
 
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-        <div className="bg-isanami-sumi absolute inset-0" />
+      <SakuraTree className="pointer-events-none absolute bottom-0 left-[-2%] hidden h-[88vh] w-auto origin-bottom opacity-80 md:block" />
+      <SakuraTree
+        flip
+        className="pointer-events-none absolute bottom-0 right-[-2%] hidden h-[88vh] w-auto origin-bottom opacity-80 md:block"
+      />
+      <SakuraTree className="pointer-events-none absolute bottom-0 left-[-18%] h-[55vh] w-auto opacity-55 md:hidden" />
+      <SakuraTree
+        flip
+        className="pointer-events-none absolute bottom-0 right-[-18%] h-[55vh] w-auto opacity-55 md:hidden"
+      />
 
-        <SakuraTree className="pointer-events-none absolute bottom-0 left-[-2%] hidden h-[88vh] w-auto origin-bottom opacity-80 md:block" />
-        <SakuraTree
-          flip
-          className="pointer-events-none absolute bottom-0 right-[-2%] hidden h-[88vh] w-auto origin-bottom opacity-80 md:block"
-        />
-        <SakuraTree className="pointer-events-none absolute bottom-0 left-[-18%] h-[55vh] w-auto opacity-55 md:hidden" />
-        <SakuraTree
-          flip
-          className="pointer-events-none absolute bottom-0 right-[-18%] h-[55vh] w-auto opacity-55 md:hidden"
-        />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(18,10,13,0.6)_100%)]" />
 
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(18,10,13,0.6)_100%)]" />
+      <div className="relative z-10 w-full max-w-sm animate-fade-up px-2">
+        <div className="flex flex-col items-center text-center">
+          <div className="mb-4 overflow-hidden rounded-full border-[3px] border-washi/90 shadow-[0_0_0_2px_rgba(200,64,47,0.35)]">
+            <Image
+              src="/isanami-logo.png"
+              alt="Isanami Sushi"
+              width={448}
+              height={448}
+              className="h-auto w-48 drop-shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:w-52"
+              priority
+            />
+          </div>
+          <p className="font-display text-[11px] tracking-[0.28em] text-gold-dim">入場</p>
+          <p className="mt-1 text-sm text-washi/90">Acceso al sistema interno</p>
+          <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.22em] text-gold">
+            Hojancha · Guanacaste
+          </p>
+        </div>
 
-        <div className="relative z-10 w-full max-w-sm animate-fade-up px-2">
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-4 overflow-hidden rounded-full border-[3px] border-washi/90 shadow-[0_0_0_2px_rgba(200,64,47,0.35)]">
-              <Image
-                src="/isanami-logo.png"
-                alt="Isanami Sushi"
-                width={448}
-                height={448}
-                className="h-auto w-48 drop-shadow-[0_12px_28px_rgba(0,0,0,0.45)] sm:w-52"
-                priority
-              />
-            </div>
-            <p className="font-display text-[11px] tracking-[0.28em] text-gold-dim">入場</p>
-            <p className="mt-1 text-sm text-washi/90">Acceso al sistema interno</p>
-            <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.22em] text-gold">
-              Hojancha · Guanacaste
-            </p>
+        <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-washi">
+              Correo
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-md border border-gold/30 bg-washi/10 px-3 py-2.5 text-sm text-washi outline-none backdrop-blur-[2px] transition placeholder:text-washi/40 focus:border-gold/60 focus:bg-washi/15 focus:ring-2 focus:ring-gold/25"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-washi">
-                Correo
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md border border-gold/30 bg-washi/10 px-3 py-2.5 text-sm text-washi outline-none backdrop-blur-[2px] transition placeholder:text-washi/40 focus:border-gold/60 focus:bg-washi/15 focus:ring-2 focus:ring-gold/25"
-              />
-            </div>
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-washi">
+              Contrasena
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-md border border-gold/30 bg-washi/10 px-3 py-2.5 text-sm text-washi outline-none backdrop-blur-[2px] transition placeholder:text-washi/40 focus:border-gold/60 focus:bg-washi/15 focus:ring-2 focus:ring-gold/25"
+            />
+          </div>
 
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-washi">
-                Contrasena
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-md border border-gold/30 bg-washi/10 px-3 py-2.5 text-sm text-washi outline-none backdrop-blur-[2px] transition placeholder:text-washi/40 focus:border-gold/60 focus:bg-washi/15 focus:ring-2 focus:ring-gold/25"
-              />
-            </div>
+          {error ? (
+            <p className="rounded-md border border-vermillion/40 bg-vermillion/15 px-3 py-2 text-sm text-sakura">
+              {error}
+            </p>
+          ) : null}
 
-            {error ? (
-              <p className="rounded-md border border-vermillion/40 bg-vermillion/15 px-3 py-2 text-sm text-sakura">
-                {error}
-              </p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={loading || entering}
-              className="w-full rounded-md border border-gold/40 bg-gradient-to-b from-vermillion to-vermillion-deep px-4 py-2.5 text-sm font-medium text-washi shadow-lacquer transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(156,46,33,0.45)] disabled:opacity-60"
-            >
-              {entering ? "Entrando..." : loading ? "Ingresando..." : "Ingresar"}
-            </button>
-          </form>
-        </div>
-      </main>
-    </>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md border border-gold/40 bg-gradient-to-b from-vermillion to-vermillion-deep px-4 py-2.5 text-sm font-medium text-washi shadow-lacquer transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(156,46,33,0.45)] disabled:opacity-60"
+          >
+            {loading ? "Ingresando..." : "Ingresar"}
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }

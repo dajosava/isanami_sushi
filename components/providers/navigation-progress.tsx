@@ -108,10 +108,9 @@ export function NavigationLoadingProvider({ children }: { children: ReactNode })
   }, []);
 
   useEffect(() => {
-    if (prevPath.current !== pathname) {
-      prevPath.current = pathname;
-      onPathnameChanged(pathname);
-    }
+    // Incluye el montaje inicial (p. ej. llegada desde login con overlay ya visible)
+    onPathnameChanged(pathname);
+    prevPath.current = pathname;
   }, [pathname]);
 
   const value = useMemo(

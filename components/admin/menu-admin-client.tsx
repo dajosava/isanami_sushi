@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
+import { EditIconButton } from "@/components/ui/edit-icon-button";
 import { clsx } from "clsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -325,16 +326,11 @@ export function MenuAdminClient({
 
     return (
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <button
-          type="button"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sakura-600 transition hover:bg-sakura-100 disabled:opacity-40"
+        <EditIconButton
           disabled={pending || editandoId !== null}
           onClick={() => onStartEdit(p)}
-          aria-label={`Editar ${p.nombre}`}
-          title="Editar nombre y precio"
-        >
-          <Pencil size={15} />
-        </button>
+          label={`Editar ${p.nombre}`}
+        />
         <button
           type="button"
           className="inline-flex h-8 items-center rounded-md border border-sakura-200 bg-sakura-100/80 px-2 text-xs font-medium text-sumi-900 transition hover:bg-sakura-200/80 disabled:cursor-not-allowed disabled:opacity-40"
