@@ -101,9 +101,10 @@ export function PlanillaClient({
   }, [colaboradores]);
 
   useEffect(() => {
-    if (colaboradores.length === 0) return;
+    const primero = colaboradores[0];
+    if (!primero) return;
     if (!colaboradores.some((c) => c.id === usuarioId)) {
-      setUsuarioId(colaboradores[0].id);
+      setUsuarioId(primero.id);
     }
   }, [colaboradores, usuarioId]);
 
