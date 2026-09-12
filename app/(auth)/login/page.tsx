@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { startNavLoading } from "@/lib/navigation-loading-store";
+import { AppTransitionOverlay } from "@/components/ui/app-transition";
 
 function SakuraTree({ className, flip }: { className?: string; flip?: boolean }) {
   return (
@@ -79,16 +80,16 @@ export default function LoginPage() {
       return;
     }
 
-    // Solo la animacion de carga (overlay DOM) — sin formulario ni "Bienvenido"
-    setEntering(true);
+    // Overlay DOM primero (sobrevive al desmontar login), luego solo animacion
     startNavLoading("Cargando...", "/pedidos");
+    setEntering(true);
     router.push("/pedidos");
     router.refresh();
   }
 
-  // Durante la entrada solo queda el overlay global de carga
-  if (entering) {
-    return null;
+  // Solo animacion a pantalla completa — nunca formulario + loader juntos
+  if (entering || loading) {
+    return <AppTransitionOverlay message={entering ? "Cargando..." : "Ingresando..."} />;
   }
 
   return (
@@ -164,10 +165,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || entering}
             className="w-full rounded-md border border-gold/40 bg-gradient-to-b from-vermillion to-vermillion-deep px-4 py-2.5 text-sm font-medium text-washi shadow-lacquer transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(156,46,33,0.45)] disabled:opacity-60"
           >
-            {loading ? "Ingresando..." : "Ingresar"}
+            Ingresar
           </button>
         </form>
       </div>

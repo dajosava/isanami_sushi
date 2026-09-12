@@ -25,10 +25,10 @@ body {
   background: var(--sumi-1);
 }
 
-/* Fondo principal sumi + resplandores + seigaiha + grano */
+/* Fondo principal sumi + resplandores + seigaiha + grano
+   NO poner position aqui: anula `fixed` en overlays de carga. */
 .bg-isanami-sakura,
 .bg-isanami-sumi {
-  position: relative;
   background:
     radial-gradient(ellipse 55% 45% at 12% 18%, rgba(200, 64, 47, 0.22) 0%, transparent 55%),
     radial-gradient(ellipse 50% 40% at 88% 82%, rgba(201, 163, 92, 0.14) 0%, transparent 50%),
@@ -356,9 +356,16 @@ body {
 
 /* Overlay de transicion entre modulos (DOM imperativo) */
 #isanami-transition-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  z-index: 99999 !important;
   display: none;
   align-items: center;
   justify-content: center;

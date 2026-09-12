@@ -97,7 +97,10 @@ function syncDom(visible: boolean) {
 
   let el = document.getElementById(OVERLAY_ID);
   if (!visible) {
-    if (el) el.dataset.visible = "0";
+    if (el) {
+      el.dataset.visible = "0";
+      el.style.display = "none";
+    }
     return;
   }
 
@@ -122,6 +125,24 @@ function syncDom(visible: boolean) {
     `;
     document.body.appendChild(el);
   }
+
+  // Estilos inline por si el CSS aun no aplica / conflicto de position
+  Object.assign(el.style, {
+    position: "fixed",
+    inset: "0",
+    top: "0",
+    right: "0",
+    bottom: "0",
+    left: "0",
+    width: "100vw",
+    height: "100dvh",
+    minHeight: "100vh",
+    zIndex: "99999",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  });
 
   const msg = el.querySelector(".isanami-transition-msg");
   if (msg) msg.textContent = state.message;

@@ -37,7 +37,8 @@ export function AppTransitionOverlay({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[300] flex flex-col items-center justify-center overflow-hidden bg-isanami-sumi"
+      className="bg-isanami-sumi !fixed inset-0 z-[99999] flex flex-col items-center justify-center overflow-hidden"
+      style={{ position: "fixed", inset: 0, zIndex: 99999 }}
       role="status"
       aria-live="polite"
       aria-busy="true"
