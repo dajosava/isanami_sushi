@@ -10,7 +10,9 @@ export default async function NuevoComprobantePage({ params }: { params: { pedid
 
   const { data: pedido } = await supabase
     .from("pedidos")
-    .select("id, tipo, mesas(numero), pedido_items(cantidad, productos(nombre, precio_venta))")
+    .select(
+      "id, tipo, mesas(numero), pedido_items(id, cantidad, productos(nombre, precio_venta))"
+    )
     .eq("id", params.pedidoId)
     .single();
 
@@ -25,8 +27,9 @@ export default async function NuevoComprobantePage({ params }: { params: { pedid
   const lineas = items.map((item) => {
     const producto = one(item.productos);
     return {
+      id: item.id as string,
       cantidad: item.cantidad,
-      precioUnitario: producto?.precio_venta ?? 0,
+      precioUnitario: Number(producto?.precio_venta ?? 0),
       nombre: producto?.nombre ?? "Producto",
     };
   });
@@ -44,8 +47,8 @@ export default async function NuevoComprobantePage({ params }: { params: { pedid
       </CardHeader>
       <CardContent>
         <ul className="mb-4 space-y-1 text-sm text-sumi-900">
-          {lineas.map((linea, i) => (
-            <li key={i} className="flex justify-between gap-3">
+          {lineas.map((linea) => (
+            <li key={linea.id} className="flex justify-between gap-3">
               <span>
                 {linea.cantidad}x {linea.nombre}
               </span>
@@ -74,7 +77,12 @@ export default async function NuevoComprobantePage({ params }: { params: { pedid
           <p className="pt-1 text-xs text-sumi-600">Precios con IVA incluido.</p>
         </div>
 
-        <FormularioCobro pedidoId={params.pedidoId} total={total} />
+        <FormularioCobro
+          pedidoId={params.pedidoId}
+          total={total}
+          aplicaServicio={aplicaServicio}
+          lineas={lineas}
+        />
       </CardContent>
     </Card>
   );
