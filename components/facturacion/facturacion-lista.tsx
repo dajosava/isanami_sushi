@@ -19,7 +19,11 @@ export interface ComprobanteRow {
 
 export function FacturacionLista({ comprobantes }: { comprobantes: ComprobanteRow[] }) {
   if (comprobantes.length === 0) {
-    return <p className="p-4 text-sm text-sumi-700">Todavia no hay comprobantes generados.</p>;
+    return (
+      <p className="p-4 text-sm text-sumi-700">
+        No hay comprobantes en el rango de fechas seleccionado.
+      </p>
+    );
   }
 
   return (
