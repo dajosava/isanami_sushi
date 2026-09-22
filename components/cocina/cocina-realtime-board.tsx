@@ -8,6 +8,7 @@ import { marcarComandaLista } from "@/actions/comandas.actions";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { one } from "@/lib/relations";
+import { LIMITES } from "@/lib/limites-campos";
 
 interface ComandaItem {
   pedido_item_id?: string;
@@ -38,6 +39,11 @@ const COMANDA_SELECT =
 function parseItems(items: Comanda["items"]): ComandaItem[] {
   if (Array.isArray(items)) return items as ComandaItem[];
   return [];
+}
+
+function truncarNombre(nombre: string, max = LIMITES.comandaProductoVisible) {
+  if (nombre.length <= max) return nombre;
+  return `${nombre.slice(0, max - 1)}…`;
 }
 
 function origenPedido(comanda: Comanda): string {
@@ -122,9 +128,9 @@ export function CocinaRealtimeBoard({ comandasIniciales }: { comandasIniciales: 
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <CardTitle>{comanda.estacion}</CardTitle>
-                  <p className="mt-0.5 text-sm font-medium text-washi-50/90">
-                    {origenPedido(comanda)}
+                  <CardTitle>{origenPedido(comanda)}</CardTitle>
+                  <p className="mt-0.5 text-xs text-washi-50/80">
+                    {items.length} {items.length === 1 ? "producto" : "productos"}
                   </p>
                 </div>
                 <Badge tono="info">{comanda.estado}</Badge>
@@ -132,16 +138,19 @@ export function CocinaRealtimeBoard({ comandasIniciales }: { comandasIniciales: 
             </CardHeader>
             <CardContent className="flex flex-1 flex-col">
               <ul className="mb-3 flex-1 space-y-2 text-sm text-sumi-700">
-                {items.map((item, idx) => (
-                  <li key={item.pedido_item_id ?? idx}>
-                    <span className="font-medium text-sumi-900">
-                      {item.cantidad ?? 1}x {item.producto ?? "Producto"}
-                    </span>
-                    {item.notas ? (
-                      <span className="mt-0.5 block text-xs">{item.notas}</span>
-                    ) : null}
-                  </li>
-                ))}
+                {items.map((item, idx) => {
+                  const nombre = item.producto ?? "Producto";
+                  return (
+                    <li key={item.pedido_item_id ?? idx}>
+                      <span className="font-medium text-sumi-900" title={nombre}>
+                        {item.cantidad ?? 1}x {truncarNombre(nombre)}
+                      </span>
+                      {item.notas ? (
+                        <span className="mt-0.5 block text-xs">{item.notas}</span>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
               <Button
                 onClick={() => marcarLista(comanda.id)}

@@ -34,7 +34,7 @@ export async function crearComprobante(input: CrearComprobanteInput) {
 
     if (error) return { ok: false as const, error: error.message };
 
-    revalidatePath("/facturacion");
+    revalidatePath("/ventas");
     revalidatePath("/pedidos");
     revalidatePath("/cocina");
     return { ok: true as const, comprobanteId: (data as { id?: string } | null)?.id ?? null };
@@ -74,7 +74,7 @@ export async function crearComprobanteConPagos(input: {
 
     if (error) return { ok: false as const, error: error.message };
 
-    revalidatePath("/facturacion");
+    revalidatePath("/ventas");
     revalidatePath("/pedidos");
     revalidatePath("/cocina");
     return { ok: true as const, comprobanteId: (data as { id?: string } | null)?.id ?? null };
@@ -95,7 +95,7 @@ export async function anularComprobante(facturaId: string, motivo: string) {
 
   if (error) return { ok: false as const, error: error.message };
 
-  revalidatePath("/facturacion");
-  revalidatePath(`/facturacion/${facturaId}`);
+  revalidatePath("/ventas");
+  revalidatePath(`/ventas/${facturaId}`);
   return { ok: true as const };
 }

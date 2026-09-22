@@ -182,7 +182,9 @@ export function mensajeParaRuta(pathname: string): string {
   if (/^\/pedidos\/[^/]+$/.test(pathname)) return "Cargando mesa...";
   if (pathname.startsWith("/pedidos")) return "Cargando pedidos...";
   if (pathname.startsWith("/cocina")) return "Cargando cocina...";
-  if (pathname.startsWith("/facturacion")) return "Cargando facturación...";
+  if (pathname.startsWith("/ventas") || pathname.startsWith("/facturacion")) {
+    return "Cargando ventas...";
+  }
   if (pathname.startsWith("/planilla")) return "Cargando planilla...";
   if (pathname.startsWith("/inventario/compras")) return "Cargando compras...";
   if (pathname.startsWith("/inventario")) return "Cargando inventario...";

@@ -23,7 +23,7 @@ export default async function CierresPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <h1 className="font-display text-2xl">Cierres de caja por turno</h1>
         <Link href="/contabilidad/reportes" className="text-sm underline hover:text-white">
-          Reportes diarios
+          Reportes contador
         </Link>
       </div>
 

@@ -8,9 +8,11 @@ import { clsx } from "clsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { FieldCounter } from "@/components/ui/field-counter";
 import { useToast } from "@/components/ui/toast";
 import { crearCategoria, eliminarCategoria, eliminarProducto, guardarProducto } from "@/actions/admin.actions";
 import { formatColon } from "@/lib/utils";
+import { LIMITES } from "@/lib/limites-campos";
 
 interface Categoria {
   id: string;
@@ -75,12 +77,16 @@ export function MenuAdminClient({
               <tr key={p.id}>
                 <td className="px-4 py-2 font-medium">
                   {editando ? (
-                    <Input
-                      value={editNombre}
-                      onChange={(e) => setEditNombre(e.target.value)}
-                      required
-                      className="min-w-[10rem]"
-                    />
+                    <FieldCounter value={editNombre} max={LIMITES.productoNombre}>
+                      <Input
+                        value={editNombre}
+                        onChange={(e) => setEditNombre(e.target.value.slice(0, LIMITES.productoNombre))}
+                        placeholder="Nombre del producto"
+                        required
+                        maxLength={LIMITES.productoNombre}
+                        className="min-w-[10rem]"
+                      />
+                    </FieldCounter>
                   ) : (
                     p.nombre
                   )}
@@ -89,9 +95,13 @@ export function MenuAdminClient({
                   {editando ? (
                     <Input
                       type="number"
+                      inputMode="decimal"
                       min={0}
+                      max={LIMITES.precioMax}
+                      step="0.01"
                       value={editPrecio}
                       onChange={(e) => setEditPrecio(e.target.value)}
+                      placeholder="Precio ₡"
                       required
                       className="w-28"
                     />
@@ -185,10 +195,15 @@ export function MenuAdminClient({
 
   function onCreateProducto(e: React.FormEvent) {
     e.preventDefault();
+    const precioNum = Number(precio);
+    if (!Number.isFinite(precioNum) || precioNum < 0 || precioNum > LIMITES.precioMax) {
+      toast("Precio inválido", "peligro");
+      return;
+    }
     startTransition(async () => {
       const result = await guardarProducto({
-        nombre,
-        precio_venta: Number(precio),
+        nombre: nombre.trim(),
+        precio_venta: precioNum,
         categoria_id: categoriaId || null,
         tipo,
         activo: true,
@@ -223,7 +238,7 @@ export function MenuAdminClient({
     }
 
     const precio = Number(editPrecio);
-    if (Number.isNaN(precio) || precio < 0) {
+    if (!Number.isFinite(precio) || precio < 0 || precio > LIMITES.precioMax) {
       toast("Precio invalido", "peligro");
       return;
     }
@@ -361,28 +376,49 @@ export function MenuAdminClient({
           "nuevo-producto",
           "Nuevo producto",
           <form onSubmit={onCreateProducto} className="space-y-3">
-            <Input placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-            <Input
-              type="number"
-              placeholder="Precio"
-              value={precio}
-              onChange={(e) => setPrecio(e.target.value)}
-              required
-              min={0}
-            />
-            <Select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
-              <option value="">Sin categoria</option>
-              {categorias.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre}
-                </option>
-              ))}
-            </Select>
-            <Select value={tipo} onChange={(e) => setTipo(e.target.value as typeof tipo)}>
-              <option value="plato">Plato</option>
-              <option value="bebida">Bebida</option>
-              <option value="combo">Combo</option>
-            </Select>
+            <FieldCounter label="Nombre" value={nombre} max={LIMITES.productoNombre}>
+              <Input
+                placeholder="Ej. Philadelphia roll"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value.slice(0, LIMITES.productoNombre))}
+                required
+                maxLength={LIMITES.productoNombre}
+                minLength={2}
+              />
+            </FieldCounter>
+            <div className="space-y-1">
+              <span className="text-sm font-medium text-sumi-800">Precio (₡)</span>
+              <Input
+                type="number"
+                inputMode="decimal"
+                placeholder="Ej. 4500"
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value)}
+                required
+                min={0}
+                max={LIMITES.precioMax}
+                step="0.01"
+              />
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-medium text-sumi-800">Categoría</span>
+              <Select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
+                <option value="">Sin categoria</option>
+                {categorias.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nombre}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-sm font-medium text-sumi-800">Tipo</span>
+              <Select value={tipo} onChange={(e) => setTipo(e.target.value as typeof tipo)}>
+                <option value="plato">Plato</option>
+                <option value="bebida">Bebida</option>
+                <option value="combo">Combo</option>
+              </Select>
+            </div>
             <Button type="submit" disabled={pending} className="w-full">
               Guardar producto
             </Button>
@@ -392,15 +428,19 @@ export function MenuAdminClient({
         {renderPanelColapsable(
           "nueva-categoria",
           "Nueva categoria",
-          <form onSubmit={onCreateCategoria} className="flex flex-col gap-3 sm:flex-row">
-            <Input
-              placeholder="Nombre categoria"
-              value={nuevaCat}
-              onChange={(e) => setNuevaCat(e.target.value)}
-              required
-              className="flex-1"
-            />
-            <Button type="submit" disabled={pending} className="sm:shrink-0">
+          <form onSubmit={onCreateCategoria} className="flex flex-col gap-3">
+            <FieldCounter label="Nombre" value={nuevaCat} max={LIMITES.categoriaNombre}>
+              <Input
+                placeholder="Ej. Rollos clásicos"
+                value={nuevaCat}
+                onChange={(e) => setNuevaCat(e.target.value.slice(0, LIMITES.categoriaNombre))}
+                required
+                maxLength={LIMITES.categoriaNombre}
+                minLength={2}
+                className="flex-1"
+              />
+            </FieldCounter>
+            <Button type="submit" disabled={pending} className="sm:self-start">
               Agregar
             </Button>
           </form>

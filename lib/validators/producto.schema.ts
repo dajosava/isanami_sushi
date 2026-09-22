@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { LIMITES } from "@/lib/limites-campos";
 
 export const productoSchema = z.object({
   categoriaId: z.string().uuid(),
-  nombre: z.string().min(2).max(120),
+  nombre: z.string().trim().min(2).max(LIMITES.productoNombre),
   descripcion: z.string().max(500).optional(),
-  precioVenta: z.number().positive(),
+  precioVenta: z.number().nonnegative().max(LIMITES.precioMax),
   impuestoIvaPct: z.number().min(0).max(100).default(13),
   tipo: z.enum(["plato", "bebida", "combo"]),
   activo: z.boolean().default(true),

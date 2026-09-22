@@ -187,8 +187,8 @@ export function FormularioCobro({
         }
 
         toast("Comprobante creado", "exito");
-        startNav("Cargando facturación...");
-        router.push("/facturacion");
+        startNav("Cargando ventas...");
+        router.push("/ventas");
         router.refresh();
       } catch (e) {
         const message = e instanceof Error ? e.message : "No se pudo completar el cobro";
@@ -231,8 +231,8 @@ export function FormularioCobro({
         }
 
         toast(`Cuenta cobrada en ${pagos.length} pagos`, "exito");
-        startNav("Cargando facturación...");
-        router.push("/facturacion");
+        startNav("Cargando ventas...");
+        router.push("/ventas");
         router.refresh();
       } catch (e) {
         const message =
@@ -293,6 +293,7 @@ export function FormularioCobro({
                 step="1"
                 value={montoRecibido}
                 onChange={(e) => setMontoRecibido(e.target.value)}
+                placeholder="Monto recibido en ₡"
                 className="min-h-11 text-base"
                 required
               />
@@ -361,7 +362,7 @@ export function FormularioCobro({
                     <Input
                       value={etiqueta}
                       onChange={(e) => setEtiqueta(e.target.value)}
-                      placeholder="Persona 1"
+                      placeholder="Nombre o Persona 1"
                     />
                   </div>
                   <Button type="button" variant="secondary" onClick={tomarTodoRestante}>
@@ -400,6 +401,7 @@ export function FormularioCobro({
                             min={0}
                             max={item.cantidadRestante}
                             value={qty}
+                            placeholder="0"
                             onChange={(e) =>
                               onSeleccionChange(
                                 item.id,
@@ -459,7 +461,11 @@ export function FormularioCobro({
                       min={0}
                       step="1"
                       value={recibidoPersona}
-                      placeholder={totalPersona > 0 ? String(Math.ceil(totalPersona)) : "0"}
+                      placeholder={
+                        totalPersona > 0
+                          ? `Ej. ${Math.ceil(totalPersona)}`
+                          : "Monto recibido"
+                      }
                       onChange={(e) => setRecibidoPersona(e.target.value)}
                       onFocus={() => {
                         if (!recibidoPersona && totalPersona > 0) {

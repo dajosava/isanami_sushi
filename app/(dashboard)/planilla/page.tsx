@@ -26,12 +26,12 @@ function haceDiasCR(dias: number): string {
 async function cargarColaboradores(
   supabase: ReturnType<typeof createClient>,
   usuarioId: string,
-  puedeGestionarTodos: boolean
+  listarTodosActivos: boolean
 ) {
   // 1) Listado base (sin tarifa) — no depende de migración 0023
   let query = supabase.from("usuarios").select("id, nombre, rol, activo").order("nombre");
 
-  if (puedeGestionarTodos) {
+  if (listarTodosActivos) {
     // Admin/gerente: todos los activos; si no hay activos, mostrar todos
     const { data: activos, error: errActivos } = await query.eq("activo", true);
     if (errActivos) {
@@ -104,11 +104,13 @@ export default async function PlanillaPage({
       : haceDiasCR(14);
 
   const puedeGestionarTodos = ["admin", "gerente"].includes(usuario.rol);
+  const puedeExportarPlanilla = ["admin", "gerente", "contador"].includes(usuario.rol);
+  const listarTodosActivos = puedeGestionarTodos || puedeExportarPlanilla;
   const fechaHoy = hoyCR();
 
   const [colaboradoresBase, { data: registros, error: errorRegistros }, { data: miHoyRow }] =
     await Promise.all([
-      cargarColaboradores(supabase, usuario.id, puedeGestionarTodos),
+      cargarColaboradores(supabase, usuario.id, listarTodosActivos),
       supabase
         .from("planilla_registros")
         .select("id, usuario_id, fecha, hora_entrada, hora_salida, notas")
@@ -167,6 +169,7 @@ export default async function PlanillaPage({
       <PlanillaClient
         usuarioActualId={usuario.id}
         puedeGestionarTodos={puedeGestionarTodos}
+        puedeExportarPlanilla={puedeExportarPlanilla}
         colaboradores={colaboradores}
         registros={(registros ?? []).map((r) => ({
           id: r.id,

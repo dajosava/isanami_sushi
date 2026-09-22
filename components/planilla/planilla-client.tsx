@@ -13,9 +13,9 @@ import { formatColon } from "@/lib/utils";
 import {
   formatearDuracion,
   formatearHorasDecimal,
-  minutosAHorasDecimal,
   minutosTrabajados,
 } from "@/lib/planilla/horas";
+import { calcularResumenPago } from "@/lib/planilla/resumen";
 import {
   actualizarTarifaHora,
   eliminarPlanillaRegistro,
@@ -48,6 +48,7 @@ function normalizarHora(valor: string | null | undefined) {
 export function PlanillaClient({
   usuarioActualId,
   puedeGestionarTodos,
+  puedeExportarPlanilla,
   colaboradores,
   registros,
   miRegistroHoy,
@@ -57,6 +58,7 @@ export function PlanillaClient({
 }: {
   usuarioActualId: string;
   puedeGestionarTodos: boolean;
+  puedeExportarPlanilla: boolean;
   colaboradores: ColaboradorPlanilla[];
   registros: RegistroPlanilla[];
   miRegistroHoy: RegistroPlanilla | null;
@@ -108,48 +110,45 @@ export function PlanillaClient({
     }
   }, [colaboradores, usuarioId]);
 
+  const colaboradoresFormulario = useMemo(
+    () =>
+      puedeGestionarTodos
+        ? colaboradores
+        : colaboradores.filter((c) => c.id === usuarioActualId),
+    [colaboradores, puedeGestionarTodos, usuarioActualId]
+  );
+
   const resumenPago = useMemo(() => {
-    const porUsuario = new Map<
-      string,
-      { usuarioId: string; nombre: string; minutos: number; diasCompletos: number; diasPendientes: number }
-    >();
+    const base = calcularResumenPago(
+      colaboradores.map((c) => ({
+        id: c.id,
+        nombre: c.nombre,
+        rol: c.rol,
+        tarifaHora: c.tarifaHora,
+      })),
+      registros.map((r) => ({
+        usuarioId: r.usuarioId,
+        nombre: r.nombre,
+        horaEntrada: r.horaEntrada,
+        horaSalida: r.horaSalida,
+      })),
+      { incluirTodosColaboradores: puedeExportarPlanilla }
+    );
 
-    for (const reg of registros) {
-      const mins = minutosTrabajados(reg.horaEntrada, reg.horaSalida);
-      const actual = porUsuario.get(reg.usuarioId) ?? {
-        usuarioId: reg.usuarioId,
-        nombre: reg.nombre,
-        minutos: 0,
-        diasCompletos: 0,
-        diasPendientes: 0,
+    return base.map((row) => {
+      const draft = tarifasDraft[row.usuarioId]?.trim();
+      const draftNum = draft ? Number(draft) : NaN;
+      const tarifaUi =
+        draft && Number.isFinite(draftNum) && draftNum >= 0
+          ? draftNum
+          : row.tarifa;
+      return {
+        ...row,
+        tarifa: tarifaUi,
+        pago: tarifaUi != null ? Math.round(row.horas * tarifaUi) : null,
       };
-      if (mins != null) {
-        actual.minutos += mins;
-        actual.diasCompletos += 1;
-      } else {
-        actual.diasPendientes += 1;
-      }
-      porUsuario.set(reg.usuarioId, actual);
-    }
-
-    return Array.from(porUsuario.values())
-      .map((row) => {
-        const colab = colaboradores.find((c) => c.id === row.usuarioId);
-        const tarifa =
-          colab?.tarifaHora ??
-          (tarifasDraft[row.usuarioId] ? Number(tarifasDraft[row.usuarioId]) : null);
-        const tarifaNum =
-          tarifa != null && Number.isFinite(tarifa) && tarifa >= 0 ? tarifa : null;
-        const horas = minutosAHorasDecimal(row.minutos);
-        return {
-          ...row,
-          horas,
-          tarifa: tarifaNum,
-          pago: tarifaNum != null ? Math.round(horas * tarifaNum) : null,
-        };
-      })
-      .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
-  }, [registros, colaboradores, tarifasDraft]);
+    });
+  }, [registros, colaboradores, tarifasDraft, puedeExportarPlanilla]);
 
   const totalesPeriodo = useMemo(() => {
     const minutos = resumenPago.reduce((acc, r) => acc + r.minutos, 0);
@@ -163,6 +162,15 @@ export function PlanillaClient({
     params.set("desde", filtroDesde);
     params.set("hasta", filtroHasta);
     router.push(`/planilla?${params.toString()}`);
+  }
+
+  function urlExportPlanilla(tipo: "resumen" | "detalle") {
+    const params = new URLSearchParams({
+      desde: fechaDesde,
+      hasta: fechaHasta,
+      tipo,
+    });
+    return `/api/exportar/planilla?${params.toString()}`;
   }
 
   function limpiarFormulario() {
@@ -308,12 +316,12 @@ export function PlanillaClient({
               <Select
                 value={usuarioId}
                 onChange={(e) => setUsuarioId(e.target.value)}
-                disabled={!puedeGestionarTodos || colaboradores.length === 0}
+                disabled={!puedeGestionarTodos || colaboradoresFormulario.length === 0}
               >
-                {colaboradores.length === 0 ? (
+                {colaboradoresFormulario.length === 0 ? (
                   <option value="">Sin colaboradores disponibles</option>
                 ) : (
-                  colaboradores.map((c) => (
+                  colaboradoresFormulario.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.nombre} ({c.rol})
                     </option>
@@ -352,7 +360,7 @@ export function PlanillaClient({
               <Input
                 value={notas}
                 onChange={(e) => setNotas(e.target.value)}
-                placeholder="Opcional"
+                placeholder="Notas opcionales (ej. llegada tarde)"
                 maxLength={300}
               />
             </div>
@@ -374,10 +382,31 @@ export function PlanillaClient({
             <CardTitle>Cálculo para pago</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-sumi-700">
-              Horas del periodo {fechaDesde} → {fechaHasta}. El pago estimado usa la tarifa por
-              hora de cada colaborador (₡/h).
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-sumi-700">
+                Horas del periodo {fechaDesde} → {fechaHasta}. El pago estimado usa la tarifa por
+                hora de cada colaborador (₡/h).
+                {puedeExportarPlanilla
+                  ? " Incluye colaboradores activos aunque no tengan registros."
+                  : null}
+              </p>
+              {puedeExportarPlanilla ? (
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={urlExportPlanilla("resumen")}
+                    className="rounded-md border border-gold/35 bg-washi/90 px-3 py-1.5 text-sm font-medium text-ink hover:bg-washi hover:border-gold/55"
+                  >
+                    Exportar resumen CSV
+                  </a>
+                  <a
+                    href={urlExportPlanilla("detalle")}
+                    className="rounded-md border border-gold/35 bg-washi/90 px-3 py-1.5 text-sm font-medium text-ink hover:bg-washi hover:border-gold/55"
+                  >
+                    Exportar detalle CSV
+                  </a>
+                </div>
+              ) : null}
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead>
@@ -429,7 +458,7 @@ export function PlanillaClient({
                                     [row.usuarioId]: e.target.value,
                                   }))
                                 }
-                                placeholder="0"
+                                placeholder="₡/hora"
                               />
                               <button
                                 type="button"

@@ -6,6 +6,7 @@ import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import type { Rol } from "@/lib/auth/roles";
 import { MENU_CACHE_TAG } from "@/lib/pedidos/cargar-menu";
 import { CONFIG_CACHE_TAG } from "@/lib/restaurante/config";
+import { LIMITES } from "@/lib/limites-campos";
 
 async function requireAdmin() {
   const supabase = createClient();
@@ -108,12 +109,12 @@ export async function actualizarUsuario(input: {
 
 const productoSchema = z.object({
   id: z.string().uuid().optional(),
-  nombre: z.string().min(2),
-  precio_venta: z.number().nonnegative(),
+  nombre: z.string().trim().min(2).max(LIMITES.productoNombre),
+  precio_venta: z.number().nonnegative().max(LIMITES.precioMax),
   categoria_id: z.string().uuid().nullable().optional(),
   tipo: z.enum(["plato", "bebida", "combo"]).default("plato"),
   activo: z.boolean().default(true),
-  descripcion: z.string().optional(),
+  descripcion: z.string().max(500).optional(),
 });
 
 export async function guardarProducto(input: unknown) {
@@ -121,7 +122,10 @@ export async function guardarProducto(input: unknown) {
   if (!auth.ok) return { ok: false as const, error: auth.error };
 
   const parsed = productoSchema.safeParse(input);
-  if (!parsed.success) return { ok: false as const, error: "Datos invalidos" };
+  if (!parsed.success) {
+    const msg = parsed.error.issues[0]?.message ?? "Datos invalidos";
+    return { ok: false as const, error: msg };
+  }
 
   const { id, ...rest } = parsed.data;
 
@@ -182,7 +186,20 @@ export async function crearCategoria(nombre: string, orden = 0) {
   const auth = await requireAdmin();
   if (!auth.ok) return { ok: false as const, error: auth.error };
 
-  const { error } = await auth.supabase.from("categorias_menu").insert({ nombre, orden });
+  const limpio = nombre.trim();
+  if (limpio.length < 2) {
+    return { ok: false as const, error: "El nombre de la categoría es muy corto" };
+  }
+  if (limpio.length > LIMITES.categoriaNombre) {
+    return {
+      ok: false as const,
+      error: `El nombre de la categoría no puede superar ${LIMITES.categoriaNombre} caracteres`,
+    };
+  }
+
+  const { error } = await auth.supabase
+    .from("categorias_menu")
+    .insert({ nombre: limpio, orden });
   if (error) return { ok: false as const, error: error.message };
 
   revalidatePath("/admin/menu");
@@ -283,11 +300,22 @@ export async function guardarInsumo(input: {
     return { ok: false as const, error: "Sin permiso" };
   }
 
+  const nombre = input.nombre.trim();
+  if (nombre.length < 2) {
+    return { ok: false as const, error: "El nombre del insumo es muy corto" };
+  }
+  if (nombre.length > LIMITES.insumoNombre) {
+    return {
+      ok: false as const,
+      error: `El nombre del insumo no puede superar ${LIMITES.insumoNombre} caracteres`,
+    };
+  }
+
   if (input.id) {
     const { error } = await supabase
       .from("insumos")
       .update({
-        nombre: input.nombre,
+        nombre,
         unidad_medida_id: input.unidad_medida_id,
         stock_minimo: input.stock_minimo,
       })
@@ -295,7 +323,7 @@ export async function guardarInsumo(input: {
     if (error) return { ok: false as const, error: error.message };
   } else {
     const { error } = await supabase.from("insumos").insert({
-      nombre: input.nombre,
+      nombre,
       unidad_medida_id: input.unidad_medida_id,
       stock_minimo: input.stock_minimo,
       stock_actual: input.stock_actual ?? 0,
@@ -329,6 +357,68 @@ export async function guardarReceta(input: {
 
   revalidatePath("/inventario/recetas");
   return { ok: true as const };
+}
+
+/** Guarda varias líneas de receta para un mismo producto. */
+export async function guardarRecetaLineas(input: {
+  producto_id: string;
+  lineas: {
+    insumo_id: string;
+    cantidad_requerida: number;
+    unidad_medida_id: string;
+  }[];
+}) {
+  const supabase = createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { ok: false as const, error: "No autenticado" };
+
+  const { data: usuario } = await supabase
+    .from("usuarios")
+    .select("rol")
+    .eq("id", userData.user.id)
+    .single();
+
+  if (!usuario || !["admin", "gerente"].includes(usuario.rol)) {
+    return { ok: false as const, error: "Sin permiso" };
+  }
+
+  if (!input.producto_id) {
+    return { ok: false as const, error: "Selecciona un producto" };
+  }
+  if (!input.lineas?.length) {
+    return { ok: false as const, error: "Agrega al menos un ingrediente" };
+  }
+
+  const vistos = new Set<string>();
+  const rows = [];
+  for (const linea of input.lineas) {
+    if (!linea.insumo_id || !linea.unidad_medida_id) {
+      return { ok: false as const, error: "Cada línea necesita insumo y unidad" };
+    }
+    if (!(linea.cantidad_requerida > 0)) {
+      return { ok: false as const, error: "Cada cantidad debe ser mayor a cero" };
+    }
+    if (vistos.has(linea.insumo_id)) {
+      return { ok: false as const, error: "No repitas el mismo insumo en dos líneas" };
+    }
+    vistos.add(linea.insumo_id);
+    rows.push({
+      producto_id: input.producto_id,
+      insumo_id: linea.insumo_id,
+      cantidad_requerida: linea.cantidad_requerida,
+      unidad_medida_id: linea.unidad_medida_id,
+    });
+  }
+
+  const { error } = await supabase.from("recetas").upsert(rows, {
+    onConflict: "producto_id,insumo_id",
+  });
+
+  if (error) return { ok: false as const, error: error.message };
+
+  revalidatePath("/inventario/recetas");
+  revalidatePath("/inventario/insumos");
+  return { ok: true as const, guardadas: rows.length };
 }
 
 export async function guardarMesa(input: {

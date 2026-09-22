@@ -72,14 +72,26 @@ export function FiltrosFecha({
 
         {filtros.preset === "personalizado" && (
           <>
+            <label className="sr-only" htmlFor="analitica-desde">
+              Desde
+            </label>
             <input
+              id="analitica-desde"
               type="date"
+              title="Fecha desde"
+              aria-label="Fecha desde"
               className="isanami-field max-w-[10rem]"
               value={filtros.desde}
               onChange={(e) => onBorradorChange({ ...filtros, desde: e.target.value })}
             />
+            <label className="sr-only" htmlFor="analitica-hasta">
+              Hasta
+            </label>
             <input
+              id="analitica-hasta"
               type="date"
+              title="Fecha hasta"
+              aria-label="Fecha hasta"
               className="isanami-field max-w-[10rem]"
               value={filtros.hasta}
               onChange={(e) => onBorradorChange({ ...filtros, hasta: e.target.value })}

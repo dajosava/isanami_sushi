@@ -15,8 +15,8 @@ export type Rol = (typeof ROLES)[keyof typeof ROLES];
 
 export const RUTAS_POR_ROL: Record<Rol, string[]> = {
   admin: ["*"],
-  gerente: ["/pedidos", "/cocina", "/inventario", "/contabilidad", "/facturacion", "/analitica", "/planilla", "/admin/mesas"],
-  cajero: ["/pedidos", "/facturacion", "/planilla", "/contabilidad"],
+  gerente: ["/pedidos", "/cocina", "/inventario", "/contabilidad", "/ventas", "/facturacion", "/analitica", "/planilla", "/admin/mesas"],
+  cajero: ["/pedidos", "/ventas", "/facturacion", "/planilla", "/contabilidad"],
   mesero: ["/pedidos", "/planilla"],
   cocina: ["/cocina", "/planilla"],
   contador: ["/contabilidad", "/analitica", "/planilla"],

@@ -139,6 +139,8 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="correo@ejemplo.com"
+              autoComplete="email"
               className="w-full rounded-md border border-gold/30 bg-washi/10 px-3 py-2.5 text-sm text-washi outline-none backdrop-blur-[2px] transition placeholder:text-washi/40 focus:border-gold/60 focus:bg-washi/15 focus:ring-2 focus:ring-gold/25"
             />
           </div>
@@ -153,6 +155,8 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Tu contraseña"
+              autoComplete="current-password"
               className="w-full rounded-md border border-gold/30 bg-washi/10 px-3 py-2.5 text-sm text-washi outline-none backdrop-blur-[2px] transition placeholder:text-washi/40 focus:border-gold/60 focus:bg-washi/15 focus:ring-2 focus:ring-gold/25"
             />
           </div>

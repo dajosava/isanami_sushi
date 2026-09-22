@@ -402,7 +402,7 @@ export function MesaPedidoClient({
                       </Button>
                       <Input
                         className="min-w-0 flex-1 py-1.5 text-xs"
-                        placeholder="Notas..."
+                        placeholder="Notas del plato (ej. sin cebolla)"
                         value={line.notas}
                         onChange={(e) => updateNotas(line.productoId, e.target.value)}
                       />
@@ -472,7 +472,7 @@ export function MesaPedidoClient({
                 )}
                 {puedeCobrar && (
                   <Link
-                    href={`/facturacion/nueva/${pedidoActivo.id}`}
+                    href={`/ventas/nueva/${pedidoActivo.id}`}
                     className="inline-flex items-center justify-center rounded-md bg-wasabi-500 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
                   >
                     Cobrar
@@ -504,7 +504,7 @@ export function MesaPedidoClient({
             )}
             {puedeCobrar && (
               <Link
-                href={`/facturacion/nueva/${pedidoActivo.id}`}
+                href={`/ventas/nueva/${pedidoActivo.id}`}
                 className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md bg-wasabi-500 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
               >
                 Cobrar

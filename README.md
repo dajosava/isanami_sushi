@@ -6,7 +6,7 @@ Aplicacion a medida para la administracion del restaurante Isanami Sushi
 ## Modulos
 - **Pedidos** — mesas, toma de pedido
 - **Cocina (KDS)** — comandas en tiempo real via Supabase Realtime
-- **Facturacion** — comprobante interno de cobro (la factura electronica fiscal la maneja el cliente en otro sistema)
+- **Ventas** — comprobante interno de cobro (la factura electronica fiscal la maneja el cliente en otro sistema)
 - **Inventario** — insumos, recetas, compras, mermas
 - **Contabilidad** — cierres de caja por turno, reportes diarios
 - **Administracion** — usuarios, menu, configuracion

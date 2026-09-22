@@ -67,13 +67,13 @@ export function MesasAdminClient({ mesas }: { mesas: Mesa[] }) {
         <CardContent className="space-y-3">
           <Input
             type="number"
-            placeholder="Numero de mesa"
+            placeholder="Número de mesa (ej. 6)"
             value={numero}
             onChange={(e) => setNumero(e.target.value)}
           />
           <Input
             type="number"
-            placeholder="Capacidad"
+            placeholder="Capacidad (ej. 4)"
             value={capacidad}
             onChange={(e) => setCapacidad(e.target.value)}
           />

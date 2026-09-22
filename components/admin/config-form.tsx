@@ -54,24 +54,24 @@ export function ConfigForm({ config }: { config: Config }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <Input
-        placeholder="Nombre comercial"
+        placeholder="Nombre comercial (ej. Isanami Sushi)"
         value={form.nombre_comercial}
         onChange={(e) => setField("nombre_comercial", e.target.value)}
         required
       />
       <Input
-        placeholder="Cedula juridica"
+        placeholder="Cédula jurídica"
         value={form.cedula_juridica}
         onChange={(e) => setField("cedula_juridica", e.target.value)}
       />
       <Input
-        placeholder="Telefono"
+        placeholder="Teléfono (ej. 2659-0000)"
         value={form.telefono}
         onChange={(e) => setField("telefono", e.target.value)}
       />
       <Input
         type="email"
-        placeholder="Email facturacion"
+        placeholder="Email de facturación"
         value={form.email_facturacion}
         onChange={(e) => setField("email_facturacion", e.target.value)}
       />
@@ -82,7 +82,7 @@ export function ConfigForm({ config }: { config: Config }) {
           onChange={(e) => setField("provincia", e.target.value)}
         />
         <Input
-          placeholder="Canton"
+          placeholder="Cantón"
           value={form.canton}
           onChange={(e) => setField("canton", e.target.value)}
         />
@@ -93,7 +93,7 @@ export function ConfigForm({ config }: { config: Config }) {
         />
       </div>
       <Textarea
-        placeholder="Senas exactas"
+        placeholder="Señas exactas / dirección"
         value={form.senas_exactas}
         onChange={(e) => setField("senas_exactas", e.target.value)}
         rows={3}

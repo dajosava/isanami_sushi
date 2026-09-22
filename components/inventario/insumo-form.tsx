@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { FieldCounter } from "@/components/ui/field-counter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/toast";
 import { guardarInsumo } from "@/actions/admin.actions";
+import { LIMITES } from "@/lib/limites-campos";
 
 interface Unidad {
   id: string;
@@ -20,9 +22,9 @@ export function InsumoForm({ unidades }: { unidades: Unidad[] }) {
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const [nombre, setNombre] = useState("");
-  const [unidadId, setUnidadId] = useState(unidades[0]?.id ?? "");
-  const [stockMinimo, setStockMinimo] = useState("0");
-  const [stockActual, setStockActual] = useState("0");
+  const [unidadId, setUnidadId] = useState("");
+  const [stockMinimo, setStockMinimo] = useState("");
+  const [stockActual, setStockActual] = useState("");
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,8 +32,8 @@ export function InsumoForm({ unidades }: { unidades: Unidad[] }) {
       const result = await guardarInsumo({
         nombre,
         unidad_medida_id: unidadId,
-        stock_minimo: Number(stockMinimo),
-        stock_actual: Number(stockActual),
+        stock_minimo: Number(stockMinimo) || 0,
+        stock_actual: Number(stockActual) || 0,
       });
       if (!result.ok) {
         toast(result.error, "peligro");
@@ -39,6 +41,8 @@ export function InsumoForm({ unidades }: { unidades: Unidad[] }) {
       }
       toast("Insumo creado", "exito");
       setNombre("");
+      setStockMinimo("");
+      setStockActual("");
       router.refresh();
     });
   }
@@ -49,35 +53,63 @@ export function InsumoForm({ unidades }: { unidades: Unidad[] }) {
         <CardTitle>Nuevo insumo</CardTitle>
       </CardHeader>
       <CardContent>
-      <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Input placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-        <Select value={unidadId} onChange={(e) => setUnidadId(e.target.value)} required>
-          {unidades.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.nombre} ({u.abreviatura})
-            </option>
-          ))}
-        </Select>
-        <Input
-          type="number"
-          step="0.001"
-          min="0"
-          placeholder="Stock actual"
-          value={stockActual}
-          onChange={(e) => setStockActual(e.target.value)}
-        />
-        <Input
-          type="number"
-          step="0.001"
-          min="0"
-          placeholder="Stock minimo"
-          value={stockMinimo}
-          onChange={(e) => setStockMinimo(e.target.value)}
-        />
-        <Button type="submit" disabled={pending || !unidadId}>
-          Crear
-        </Button>
-      </form>
+        <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <FieldCounter
+            label="Nombre"
+            value={nombre}
+            max={LIMITES.insumoNombre}
+            className="sm:col-span-2 lg:col-span-1"
+          >
+            <Input
+              placeholder="Ej. Salmón fresco"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value.slice(0, LIMITES.insumoNombre))}
+              required
+              maxLength={LIMITES.insumoNombre}
+              minLength={2}
+            />
+          </FieldCounter>
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-sumi-800">Unidad</label>
+            <Select value={unidadId} onChange={(e) => setUnidadId(e.target.value)} required>
+              <option value="" disabled>
+                Selecciona unidad
+              </option>
+              {unidades.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.nombre} ({u.abreviatura})
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-sumi-800">Stock actual</label>
+            <Input
+              type="number"
+              step="0.001"
+              min="0"
+              placeholder="Ej. 5"
+              value={stockActual}
+              onChange={(e) => setStockActual(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-sumi-800">Stock mínimo</label>
+            <Input
+              type="number"
+              step="0.001"
+              min="0"
+              placeholder="Ej. 1"
+              value={stockMinimo}
+              onChange={(e) => setStockMinimo(e.target.value)}
+            />
+          </div>
+          <div className="flex items-end">
+            <Button type="submit" disabled={pending || !unidadId} className="w-full">
+              Crear
+            </Button>
+          </div>
+        </form>
       </CardContent>
     </Card>
   );

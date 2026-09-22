@@ -1,50 +1,58 @@
-import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+import { requireRolReportesContador } from "@/lib/auth/usuario";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { hoyEnCostaRica } from "@/lib/contabilidad/reportes-contador";
 
-export default async function ReportesPage() {
-  const supabase = createClient();
-  const { data: cierresDiarios } = await supabase
-    .from("cierres_diarios")
-    .select("id, fecha, total_ventas, total_iva, total_efectivo, total_tarjeta")
-    .order("fecha", { ascending: false })
-    .limit(30);
+export default async function ReportesContadorHubPage() {
+  await requireRolReportesContador();
+  const { anio, mes } = hoyEnCostaRica();
 
   return (
     <div>
-      <h1 className="mb-6 font-display text-2xl">Reportes diarios</h1>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <h1 className="font-display text-2xl">Reportes para el contador</h1>
+        <Link href="/contabilidad/cierres" className="text-sm underline hover:text-white">
+          Cierres de caja
+        </Link>
+      </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {(cierresDiarios ?? []).map((c) => (
-          <Card key={c.id}>
+      <p className="mb-6 max-w-2xl text-sm text-washi-50/80">
+        Información fiscal y de resultado calculada en vivo desde ventas, compras/gastos y planilla.
+      </p>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link href={`/contabilidad/reportes/mensual?anio=${anio}&mes=${mes}`}>
+          <Card className="h-full transition hover:border-gold/50">
             <CardHeader>
-              <CardTitle>{new Date(c.fecha).toLocaleDateString("es-CR")}</CardTitle>
+              <CardTitle>Reporte mensual</CardTitle>
             </CardHeader>
-            <CardContent>
-            <dl className="space-y-1 text-sm text-sumi-700">
-              <div className="flex justify-between">
-                <dt>Ventas totales</dt>
-                <dd>&#8353;{c.total_ventas?.toLocaleString("es-CR")}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>IVA recaudado</dt>
-                <dd>&#8353;{c.total_iva?.toLocaleString("es-CR")}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>Efectivo</dt>
-                <dd>&#8353;{c.total_efectivo?.toLocaleString("es-CR")}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt>Tarjeta</dt>
-                <dd>&#8353;{c.total_tarjeta?.toLocaleString("es-CR")}</dd>
-              </div>
-            </dl>
+            <CardContent className="text-sm text-sumi-700">
+              Total vendido, IVA cobrado, compras, IVA 13% / 1% y diferencia aproximada para Hacienda.
             </CardContent>
           </Card>
-        ))}
+        </Link>
 
-        {(!cierresDiarios || cierresDiarios.length === 0) && (
-          <p className="text-sm text-washi-50">Todavia no hay cierres diarios generados.</p>
-        )}
+        <Link href={`/contabilidad/reportes/anual?anio=${anio}`}>
+          <Card className="h-full transition hover:border-gold/50">
+            <CardHeader>
+              <CardTitle>Reporte anual</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-sumi-700">
+              Ventas, compras (mercadería), gastos, salarios estimados y ganancia del año.
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/contabilidad/reportes/cierres">
+          <Card className="h-full transition hover:border-gold/50">
+            <CardHeader>
+              <CardTitle>Cierres diarios</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-sumi-700">
+              Histórico de cierres consolidados por día (ventas e IVA del turno).
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );

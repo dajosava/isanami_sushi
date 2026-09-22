@@ -137,23 +137,26 @@ export function UsuariosAdminClient({
           </CardHeader>
           <CardContent className="space-y-3">
             <Input
-              placeholder="Nombre"
+              placeholder="Nombre completo"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="correo@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <Input
               type="password"
-              placeholder="Contrasena temporal"
+              placeholder="Contraseña temporal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <Select value={rol} onChange={(e) => setRol(e.target.value)}>
+              <option value="" disabled>
+                Selecciona un rol
+              </option>
               {ROLES.map((r) => (
                 <option key={r} value={r}>
                   {r}
@@ -190,6 +193,7 @@ export function UsuariosAdminClient({
                           <Input
                             value={editNombre}
                             onChange={(e) => setEditNombre(e.target.value)}
+                            placeholder="Nombre del usuario"
                             maxLength={80}
                             className="min-w-[10rem]"
                           />

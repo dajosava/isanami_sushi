@@ -45,3 +45,18 @@ export async function requireRolAnalitica(): Promise<UsuarioActual> {
 export function puedeVerAnalitica(rol: Rol): boolean {
   return ROLES_ANALITICA.includes(rol);
 }
+
+/** Reportes fiscales / contador (excluye cajero). */
+export const ROLES_REPORTES_CONTADOR: Rol[] = ["admin", "gerente", "contador"];
+
+export async function requireRolReportesContador(): Promise<UsuarioActual> {
+  const usuario = await requireUsuarioActual();
+  if (!ROLES_REPORTES_CONTADOR.includes(usuario.rol)) {
+    redirect("/contabilidad/cierres");
+  }
+  return usuario;
+}
+
+export function puedeVerReportesContador(rol: Rol): boolean {
+  return ROLES_REPORTES_CONTADOR.includes(rol);
+}

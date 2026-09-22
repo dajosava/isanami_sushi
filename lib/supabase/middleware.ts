@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
   const isDashboardRoute =
     request.nextUrl.pathname.startsWith("/pedidos") ||
     request.nextUrl.pathname.startsWith("/cocina") ||
+    request.nextUrl.pathname.startsWith("/ventas") ||
     request.nextUrl.pathname.startsWith("/facturacion") ||
     request.nextUrl.pathname.startsWith("/inventario") ||
     request.nextUrl.pathname.startsWith("/contabilidad") ||

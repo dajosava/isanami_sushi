@@ -22,11 +22,11 @@ export function FacturacionFiltros({
     if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta)) return;
     if (desde > hasta) return;
 
-    startNav("Filtrando comprobantes...");
+    startNav("Filtrando ventas...");
     const params = new URLSearchParams();
     params.set("desde", desde);
     params.set("hasta", hasta);
-    router.push(`/facturacion?${params.toString()}`);
+    router.push(`/ventas?${params.toString()}`);
   }
 
   return (

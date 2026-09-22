@@ -74,7 +74,7 @@ export function CajaControls({ turnoAbiertoId }: { turnoAbiertoId: string | null
               step="1"
               value={montoApertura}
               onChange={(e) => setMontoApertura(e.target.value)}
-              placeholder="Monto apertura"
+              placeholder="Monto de apertura en ₡"
             />
             <Button type="submit" disabled={pending}>
               Abrir caja
@@ -95,7 +95,7 @@ export function CajaControls({ turnoAbiertoId }: { turnoAbiertoId: string | null
               step="1"
               value={montoContado}
               onChange={(e) => setMontoContado(e.target.value)}
-              placeholder="Monto contado"
+              placeholder="Monto contado en ₡"
             />
             <Button type="submit" disabled={pending}>
               Cerrar caja

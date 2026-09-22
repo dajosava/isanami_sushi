@@ -38,7 +38,7 @@ export function FacturaAcciones({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Link
-        href={`/facturacion/${facturaId}`}
+        href={`/ventas/${facturaId}`}
         className="isanami-touch-target inline-flex items-center justify-center rounded-md bg-washi-100 px-3 py-2 text-xs font-medium hover:bg-washi-200"
       >
         Ver / imprimir
@@ -53,7 +53,7 @@ export function FacturaAcciones({
             <form onSubmit={onAnular} className="flex w-full min-w-[220px] flex-col gap-2 sm:w-auto">
               <Textarea
                 rows={2}
-                placeholder="Motivo de anulacion"
+                placeholder="Motivo de anulación (obligatorio)"
                 value={motivo}
                 onChange={(e) => setMotivo(e.target.value)}
                 required
