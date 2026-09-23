@@ -303,3 +303,68 @@ export async function actualizarStockMinimo(input: { insumoId: string; stockMini
   revalidatePath("/inventario/insumos");
   return { ok: true as const };
 }
+
+export async function eliminarInsumo(insumoId: string) {
+  const supabase = createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) return { ok: false as const, error: "No autenticado" };
+
+  const { data: usuario } = await supabase
+    .from("usuarios")
+    .select("rol")
+    .eq("id", userData.user.id)
+    .single();
+
+  if (!usuario || !["admin", "gerente"].includes(usuario.rol)) {
+    return { ok: false as const, error: "Sin permiso" };
+  }
+
+  const { data: insumo } = await supabase
+    .from("insumos")
+    .select("id, nombre")
+    .eq("id", insumoId)
+    .single();
+
+  if (!insumo) return { ok: false as const, error: "Insumo no encontrado" };
+
+  const [{ count: recetasCount }, { count: comprasCount }] = await Promise.all([
+    supabase
+      .from("recetas")
+      .select("id", { count: "exact", head: true })
+      .eq("insumo_id", insumoId),
+    supabase
+      .from("compras_items")
+      .select("id", { count: "exact", head: true })
+      .eq("insumo_id", insumoId),
+  ]);
+
+  if ((recetasCount ?? 0) > 0) {
+    return {
+      ok: false as const,
+      error: `"${insumo.nombre}" está en recetas. Quítalo de las recetas antes de eliminarlo.`,
+    };
+  }
+
+  if ((comprasCount ?? 0) > 0) {
+    return {
+      ok: false as const,
+      error: `"${insumo.nombre}" ya aparece en compras. No se puede eliminar para conservar el historial.`,
+    };
+  }
+
+  // Movimientos (mermas/ajustes) no bloquean: se borran con el insumo
+  const { error: errorMov } = await supabase
+    .from("movimientos_inventario")
+    .delete()
+    .eq("insumo_id", insumoId);
+
+  if (errorMov) return { ok: false as const, error: errorMov.message };
+
+  const { error } = await supabase.from("insumos").delete().eq("id", insumoId);
+  if (error) return { ok: false as const, error: error.message };
+
+  revalidatePath("/inventario/insumos");
+  revalidatePath("/inventario/recetas");
+  revalidatePath("/inventario/compras");
+  return { ok: true as const };
+}

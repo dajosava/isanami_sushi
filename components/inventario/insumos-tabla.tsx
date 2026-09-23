@@ -2,13 +2,14 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EditIconButton } from "@/components/ui/edit-icon-button";
 import { useToast } from "@/components/ui/toast";
 import { formatColon } from "@/lib/utils";
-import { actualizarStockMinimo } from "@/actions/inventario.actions";
+import { actualizarStockMinimo, eliminarInsumo } from "@/actions/inventario.actions";
 import { clsx } from "clsx";
 
 export type InsumoRow = {
@@ -93,6 +94,24 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
     });
   }
 
+  function eliminar(insumo: InsumoRow) {
+    if (
+      !window.confirm(`¿Eliminar "${insumo.nombre}"? Esta acción no se puede deshacer.`)
+    ) {
+      return;
+    }
+    startTransition(async () => {
+      const result = await eliminarInsumo(insumo.id);
+      if (!result.ok) {
+        toast(result.error, "peligro");
+        return;
+      }
+      toast("Insumo eliminado", "exito");
+      if (editandoId === insumo.id) cancelarEdicion();
+      router.refresh();
+    });
+  }
+
   return (
     <div className="space-y-3">
       {contadores.alertas > 0 ? (
@@ -127,7 +146,7 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
               <th className="px-4 py-2">Stock mínimo</th>
               <th className="px-4 py-2">Costo promedio</th>
               <th className="px-4 py-2">Alerta</th>
-              <th className="px-4 py-2" />
+              <th className="px-4 py-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -204,11 +223,23 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
                         </Button>
                       </div>
                     ) : (
-                      <EditIconButton
-                        label={`Editar mínimo de ${insumo.nombre}`}
-                        disabled={pending || editandoId !== null}
-                        onClick={() => empezarEdicion(insumo)}
-                      />
+                      <div className="flex flex-wrap items-center gap-1">
+                        <EditIconButton
+                          label={`Editar mínimo de ${insumo.nombre}`}
+                          disabled={pending || editandoId !== null}
+                          onClick={() => empezarEdicion(insumo)}
+                        />
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-umeboshi-500 transition hover:bg-umeboshi-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+                          disabled={pending}
+                          onClick={() => eliminar(insumo)}
+                          title="Eliminar insumo"
+                          aria-label={`Eliminar ${insumo.nombre}`}
+                        >
+                          <Trash2 size={15} strokeWidth={2} aria-hidden />
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

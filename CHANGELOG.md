@@ -4,6 +4,10 @@ Todos los cambios notables del proyecto Isanami Sushi.
 
 ## 2026-09-21
 
+### Inventario
+- Los insumos se pueden **eliminar** desde el listado (admin/gerente). Bloqueado si está en recetas o en compras; limpia movimientos asociados.
+- Migración `0031_movimientos_delete_insumo.sql`.
+
 ### Contabilidad — reportes contador
 - **Reporte mensual** (`/contabilidad/reportes/mensual`): ventas, IVA cobrado, compras, IVA 13%/1% pagado, diferencia aproximada Hacienda.
 - **Reporte anual** (`/contabilidad/reportes/anual`): ventas, compras (mercadería), gastos operativos, salarios estimados (planilla), ganancia aproximada.
@@ -54,3 +58,4 @@ Todos los cambios notables del proyecto Isanami Sushi.
 - `0028` unidad de medida en líneas de compra (+ paquete/caja/libra).
 - `0029` compras/gastos: subtotal, IVA, categoría y concepto.
 - `0030` reportes contador mensual/anual (RPC).
+- `0031` DELETE en movimientos_inventario (admin/gerente, al eliminar insumos).
