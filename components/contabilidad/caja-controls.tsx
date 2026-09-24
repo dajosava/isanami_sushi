@@ -13,18 +13,24 @@ export function CajaControls({ turnoAbiertoId }: { turnoAbiertoId: string | null
   const router = useRouter();
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
-  const [montoApertura, setMontoApertura] = useState("0");
-  const [montoContado, setMontoContado] = useState("0");
+  const [montoApertura, setMontoApertura] = useState("");
+  const [montoContado, setMontoContado] = useState("");
 
   function abrir(e: React.FormEvent) {
     e.preventDefault();
+    const monto = Number(montoApertura);
+    if (!Number.isFinite(monto) || monto < 0 || montoApertura.trim() === "") {
+      toast("Indica el monto de apertura", "peligro");
+      return;
+    }
     startTransition(async () => {
-      const result = await abrirTurnoCaja(Number(montoApertura));
+      const result = await abrirTurnoCaja(monto);
       if (!result.ok) {
         toast(result.error, "peligro");
         return;
       }
       toast("Turno abierto", "exito");
+      setMontoApertura("");
       router.refresh();
     });
   }
@@ -32,16 +38,22 @@ export function CajaControls({ turnoAbiertoId }: { turnoAbiertoId: string | null
   function cerrar(e: React.FormEvent) {
     e.preventDefault();
     if (!turnoAbiertoId) return;
+    const monto = Number(montoContado);
+    if (!Number.isFinite(monto) || monto < 0 || montoContado.trim() === "") {
+      toast("Indica el monto contado", "peligro");
+      return;
+    }
     startTransition(async () => {
       const result = await cerrarTurnoCaja({
         turnoId: turnoAbiertoId,
-        montoContado: Number(montoContado),
+        montoContado: monto,
       });
       if (!result.ok) {
         toast(result.error, "peligro");
         return;
       }
       toast(`Turno cerrado. Diferencia: ${result.diferencia}`, "exito");
+      setMontoContado("");
       router.refresh();
     });
   }

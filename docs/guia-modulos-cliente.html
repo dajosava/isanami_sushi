@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Isanami Sushi — Guía de módulos del sistema</title>
+  <style>
+    :root {
+      --ink: #2a1c1a;
+      --muted: #5c4a46;
+      --line: #d4c4b0;
+      --accent: #9c2e21;
+      --gold: #8a743f;
+      --bg: #faf7f2;
+      --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+      font-size: 11pt;
+    }
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+    }
+    header.doc-header {
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    header.doc-header .eyebrow {
+      color: var(--gold);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0 0 0.35rem;
+    }
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.85rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+      color: var(--ink);
+    }
+    .subtitle { color: var(--muted); margin: 0; font-size: 1rem; }
+    .meta {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    nav.toc {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    nav.toc h2 {
+      font-size: 1rem;
+      margin: 0 0 0.75rem;
+      color: var(--accent);
+    }
+    nav.toc ol { margin: 0; padding-left: 1.25rem; }
+    nav.toc li { margin: 0.25rem 0; }
+    nav.toc a { color: var(--ink); text-decoration: none; }
+    nav.toc a:hover { color: var(--accent); text-decoration: underline; }
+
+    section.modulo {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.5rem 1.6rem;
+      margin-bottom: 1.5rem;
+      page-break-inside: avoid;
+    }
+    section.modulo h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.35rem;
+      margin: 0 0 0.25rem;
+      color: var(--accent);
+    }
+    .ruta {
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin: 0 0 1rem;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .para-quien {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin: 0 0 1rem;
+    }
+    .para-quien strong { color: var(--ink); }
+    h3 {
+      font-size: 1rem;
+      margin: 1.1rem 0 0.4rem;
+      color: var(--ink);
+    }
+    p { margin: 0.4rem 0 0.7rem; }
+    ul { margin: 0.3rem 0 0.8rem; padding-left: 1.2rem; }
+    li { margin: 0.25rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 0.6rem 0 1rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3ebe0; font-weight: 600; }
+    .ejemplo {
+      background: #f8f1e8;
+      border-left: 3px solid var(--gold);
+      padding: 0.75rem 1rem;
+      margin: 0.8rem 0;
+      font-size: 0.95rem;
+    }
+    .ejemplo strong { display: block; margin-bottom: 0.25rem; color: var(--gold); }
+    .nota {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .print-hint {
+      background: #fff8e8;
+      border: 1px solid #e6d4a8;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    @media print {
+      body { background: white; font-size: 10.5pt; }
+      .page { max-width: none; padding: 0; }
+      .print-hint { display: none; }
+      section.modulo {
+        border: 1px solid #ccc;
+        break-inside: avoid;
+        margin-bottom: 1rem;
+      }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="doc-header">
+      <p class="eyebrow">Documentación para el cliente</p>
+      <h1>Isanami Sushi — Guía de módulos</h1>
+      <p class="subtitle">
+        Explicación práctica de cada parte del sistema interno: para qué sirve,
+        quién lo usa y cómo se relaciona con el resto.
+      </p>
+      <p class="meta">Sistema interno · Hojancha, Guanacaste · Versión septiembre 2026</p>
+    </header>
+
+    <p class="print-hint">
+      <strong>Para generar el PDF:</strong> abra este archivo en el navegador →
+      <kbd>Ctrl</kbd>+<kbd>P</kbd> (o Cmd+P) → Destino: <em>Guardar como PDF</em> →
+      márgenes normales, fondo activado si lo desea.
+    </p>
+
+    <nav class="toc">
+      <h2>Índice</h2>
+      <ol>
+        <li><a href="#intro">Cómo leer esta guía</a></li>
+        <li><a href="#pedidos">Pedidos</a></li>
+        <li><a href="#cocina">Cocina</a></li>
+        <li><a href="#ventas">Ventas</a></li>
+        <li><a href="#planilla">Planilla</a></li>
+        <li><a href="#inventario">Inventario (Insumos y Recetas)</a></li>
+        <li><a href="#compras">Compras y gastos</a></li>
+        <li><a href="#contabilidad">Contabilidad</a></li>
+        <li><a href="#analitica">Analítica</a></li>
+        <li><a href="#admin">Administración (Usuarios, Mesas, Menú, Config)</a></li>
+        <li><a href="#flujo">Flujo típico de un día</a></li>
+      </ol>
+    </nav>
+
+    <section class="modulo" id="intro">
+      <h2>1. Cómo leer esta guía</h2>
+      <p>
+        El sistema de Isanami Sushi está pensado para el día a día del restaurante:
+        tomar pedidos, preparar en cocina, cobrar, controlar inventario, registrar
+        gastos y generar información para el contador.
+      </p>
+      <p>
+        Cada módulo responde a una pregunta distinta. Por ejemplo:
+        <em>“¿Qué tengo en bodega?”</em> no es lo mismo que
+        <em>“¿Qué facturas de proveedor pagué?”</em>. Esa diferencia se explica
+        en Inventario y Compras.
+      </p>
+      <p class="nota">
+        El acceso depende del rol (mesero, cajero, cocina, gerente, admin, contador).
+        No todos ven todos los módulos.
+      </p>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section class="modulo" id="pedidos">
+      <h2>2. Pedidos</h2>
+      <p class="ruta">Ruta: /pedidos</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> mesero, cajero, gerente, admin</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Es la pantalla operativa del salón y del para llevar: abrir una mesa o un
+        pedido para llevar, agregar platos del menú y enviar la comanda a cocina.
+      </p>
+
+      <h3>Qué puede hacer</h3>
+      <ul>
+        <li>Ver el estado de las mesas (libre, ocupada, en cuenta…).</li>
+        <li>Tomar pedidos de mesa y de <strong>para llevar</strong>.</li>
+        <li>Agregar o quitar productos del pedido mientras esté abierto.</li>
+        <li>Enviar el pedido a cocina (genera la comanda).</li>
+        <li>Desde aquí se enlaza el cobro cuando la cuenta está lista (módulo Ventas).</li>
+      </ul>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        El mesero abre la mesa 4, agrega 2 California Roll y 1 miso, envía a cocina.
+        Cuando el cliente pide la cuenta, el cajero cobra ese pedido en Ventas.
+      </div>
+
+      <p class="nota">
+        Pedidos no es inventario ni facturación fiscal: es el flujo de servicio en
+        el restaurante.
+      </p>
+    </section>
+
+    <!-- COCINA -->
+    <section class="modulo" id="cocina">
+      <h2>3. Cocina</h2>
+      <p class="ruta">Ruta: /cocina</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> cocina, gerente, admin</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Tablero en tiempo real de las comandas pendientes. El personal de cocina
+        ve qué preparar, de qué mesa o para llevar, y marca el avance.
+      </p>
+
+      <h3>Qué puede hacer</h3>
+      <ul>
+        <li>Ver comandas enviadas desde Pedidos.</li>
+        <li>Actualizar el estado (en preparación, listo, etc.).</li>
+        <li>Priorizar por orden de llegada.</li>
+      </ul>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        Llega la comanda de la mesa 4. Cocina marca “en preparación” y luego “listo”
+        para que el salón sepa que puede servir.
+      </div>
+
+      <p class="nota">
+        El stock de insumos <em>no</em> se descuenta al enviar a cocina; se descuenta
+        al cobrar la venta, según la receta del producto.
+      </p>
+    </section>
+
+    <!-- VENTAS -->
+    <section class="modulo" id="ventas">
+      <h2>4. Ventas</h2>
+      <p class="ruta">Ruta: /ventas</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> cajero, gerente, admin</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Cobro de pedidos y consulta de lo vendido. Genera el
+        <strong>comprobante interno de cobro</strong> (no es la factura electrónica
+        de Hacienda; esa la maneja el sistema fiscal externo del cliente).
+      </p>
+
+      <h3>Qué puede hacer</h3>
+      <ul>
+        <li>Cobrar un pedido (efectivo, tarjeta, SINPE o cobro dividido).</li>
+        <li>Ver listado de comprobantes con filtros por fechas (hoy, semana, mes, año).</li>
+        <li>Ver resumen del periodo: totales, IVA cobrado, medios de pago, productos más/menos vendidos.</li>
+        <li>Consultar el detalle de un comprobante.</li>
+      </ul>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        El cliente de la mesa 4 paga ₡28.000: ₡15.000 en efectivo y ₡13.000 en tarjeta.
+        El sistema guarda el comprobante, registra los pagos y descuenta ingredientes
+        según las recetas de lo que comió.
+      </div>
+    </section>
+
+    <!-- PLANILLA -->
+    <section class="modulo" id="planilla">
+      <h2>5. Planilla</h2>
+      <p class="ruta">Ruta: /planilla</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> todo el personal (marca propia); gerencia administra; contador consulta</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Control de asistencia y horas para estimar el pago. Cada colaborador marca
+        entrada y salida; administración puede corregir registros y definir tarifa por hora.
+      </p>
+
+      <h3>Qué puede hacer</h3>
+      <ul>
+        <li>Marcar entrada / salida del día.</li>
+        <li>Registrar o editar asistencia manualmente (fecha y horas).</li>
+        <li>Ver horas del periodo y un <strong>pago estimado</strong> (horas × tarifa ₡/h).</li>
+        <li>Exportar resumen o detalle en CSV (admin, gerente, contador).</li>
+      </ul>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        Ana marca entrada a las 10:00 y salida a las 18:00. Con tarifa ₡2.000/h,
+        el sistema estima 8 h → ₡16.000 ese día. Al final del mes se exporta el CSV
+        para el cálculo de salarios.
+      </div>
+
+      <p class="nota">
+        Es un estimado según asistencia y tarifa; no incluye deducciones legales ni
+        sustituye una nómina formal completa.
+      </p>
+    </section>
+
+    <!-- INVENTARIO -->
+    <section class="modulo" id="inventario">
+      <h2>6. Inventario (Insumos y Recetas)</h2>
+      <p class="ruta">Rutas: /inventario/insumos · /inventario/recetas</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> gerente, admin</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Controla <strong>qué hay en bodega</strong> y <strong>cuánto consume cada plato</strong>.
+        No es el libro de facturas de proveedor (eso es Compras y gastos).
+      </p>
+
+      <h3>Insumos</h3>
+      <p>Catálogo e inventario de lo que usa la cocina (arroz, salmón, wasabi…).</p>
+      <ul>
+        <li>Crear o eliminar insumos.</li>
+        <li>Ver stock actual, stock mínimo, costo promedio y alertas (sin stock, reabastecer…).</li>
+        <li>Ajustar el stock mínimo para avisos anticipados.</li>
+      </ul>
+
+      <h3>Recetas</h3>
+      <p>
+        Define cuánto de cada insumo usa un producto del menú. Al cobrar una venta,
+        el sistema descuenta automáticamente esas cantidades del stock.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Insumos</th>
+            <th>Recetas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pregunta</strong></td>
+            <td>¿Qué tengo y cuánto queda?</td>
+            <td>¿Cuánto de cada cosa usa un plato?</td>
+          </tr>
+          <tr>
+            <td><strong>Efecto en stock</strong></td>
+            <td>Muestra el stock; no lo baja solo</td>
+            <td>Define cómo se baja al cobrar</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        En Insumos existe “Arroz sushi” con 10 kg. En Recetas, el California Roll
+        usa 0,08 kg de arroz. Al cobrar 5 California, el stock baja 0,4 kg.
+      </div>
+    </section>
+
+    <!-- COMPRAS -->
+    <section class="modulo" id="compras">
+      <h2>7. Compras y gastos</h2>
+      <p class="ruta">Ruta: /inventario/compras</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> gerente, admin</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Registrar <strong>facturas de compra y gastos del negocio</strong>: proveedor,
+        fecha, número de factura, subtotal, IVA y total, clasificados por tipo de gasto.
+        Alimenta los reportes del contador.
+      </p>
+
+      <h3>Qué puede hacer</h3>
+      <ul>
+        <li>Registrar facturas con IVA 13%, 1% o exento.</li>
+        <li>Clasificar: mercadería, limpieza, publicidad, alquiler, servicios, mantenimiento, otros.</li>
+        <li>
+          <strong>Mercadería:</strong> además del registro contable, suma stock al insumo
+          (si el insumo no existe, se puede crear al vuelo).
+        </li>
+        <li>
+          <strong>Otros gastos</strong> (alquiler, publicidad…): solo el gasto; no tocan inventario.
+        </li>
+        <li>Registrar mermas (bajas de stock por pérdida o vencimiento).</li>
+        <li>Ver historial de compras y gastos.</li>
+      </ul>
+
+      <h3>Diferencia clave: Insumos vs Registrar factura / gasto</h3>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Insumos</th>
+            <th>Factura / gasto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Pregunta</strong></td>
+            <td>¿Qué tengo y cuánto queda?</td>
+            <td>¿Qué pagué y a quién?</td>
+          </tr>
+          <tr>
+            <td><strong>Stock</strong></td>
+            <td>Lo muestra y lo administra</td>
+            <td>Solo mercadería lo aumenta</td>
+          </tr>
+          <tr>
+            <td><strong>Contabilidad / IVA</strong></td>
+            <td>No</td>
+            <td>Sí (subtotal, IVA, categoría)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        En Insumos da de alta “Arroz sushi”. Cuando llega la factura del proveedor,
+        en Compras registra mercadería + arroz + cantidad + IVA → sube el stock y
+        queda el registro fiscal. El recibo de la luz se registra como “servicios públicos”,
+        sin tocar el inventario.
+      </div>
+    </section>
+
+    <!-- CONTABILIDAD -->
+    <section class="modulo" id="contabilidad">
+      <h2>8. Contabilidad</h2>
+      <p class="ruta">Rutas: /contabilidad/cierres · /contabilidad/reportes</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> cajero (caja); gerente, admin y contador (reportes)</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Dos frentes: <strong>caja del día</strong> (turnos y cierres) e
+        <strong>información para el contador</strong> (reportes mensual y anual de IVA y resultado).
+      </p>
+
+      <h3>Cierres de caja</h3>
+      <ul>
+        <li>Abrir / cerrar turno de caja.</li>
+        <li>Comparar monto esperado vs contado y ver diferencia.</li>
+        <li>Generar cierre diario consolidado.</li>
+      </ul>
+
+      <h3>Reportes para el contador</h3>
+      <ul>
+        <li>
+          <strong>Mensual:</strong> total vendido, IVA cobrado en ventas; total comprado;
+          IVA pagado al 13% y al 1%; diferencia aproximada a declarar ante Hacienda.
+        </li>
+        <li>
+          <strong>Anual:</strong> ventas, compras (mercadería), gastos operativos,
+          salarios estimados (planilla) y ganancia aproximada.
+        </li>
+        <li>Exportación a CSV.</li>
+      </ul>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        En marzo se cobraron ₡5.000.000 de IVA en ventas y se pagaron ₡1.200.000 de IVA
+        en compras. El reporte mensual muestra una diferencia aproximada de ₡3.800.000
+        (orientativa; no sustituye la declaración formal).
+      </div>
+
+      <p class="nota">
+        Los reportes fiscales son para admin, gerente y contador. El cajero usa
+        principalmente los turnos de caja.
+      </p>
+    </section>
+
+    <!-- ANALITICA -->
+    <section class="modulo" id="analitica">
+      <h2>9. Analítica</h2>
+      <p class="ruta">Ruta: /analitica</p>
+      <p class="para-quien"><strong>Quién lo usa:</strong> gerente, admin, contador</p>
+
+      <h3>¿Para qué sirve?</h3>
+      <p>
+        Tablero de indicadores del negocio: ventas en el tiempo, productos, meseros,
+        mesas, métodos de pago, etc. Es la vista de <strong>análisis y tendencias</strong>,
+        más amplia que el resumen operativo de Ventas.
+      </p>
+
+      <h3>Qué puede hacer</h3>
+      <ul>
+        <li>Filtrar por periodo y canal (salón, para llevar…).</li>
+        <li>Ver KPIs (ingresos, órdenes, ticket promedio, IVA…).</li>
+        <li>Explorar productos top, rotación, categorías, meseros, mesas.</li>
+        <li>Exportar reportes (CSV) según el tipo disponible.</li>
+      </ul>
+
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Ventas (resumen)</th>
+            <th>Analítica</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Enfoque</strong></td>
+            <td>Operación diaria / cobro</td>
+            <td>Análisis gerencial</td>
+          </tr>
+          <tr>
+            <td><strong>Profundidad</strong></td>
+            <td>Totales del periodo y listado de comprobantes</td>
+            <td>Gráficos, desgloses y comparativos</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="modulo" id="admin">
+      <h2>10. Administración</h2>
+      <p class="para-quien"><strong>Quién lo usa:</strong> principalmente admin (mesas también gerente)</p>
+
+      <h3>Usuarios — /admin/usuarios</h3>
+      <p>
+        Altas y gestión de cuentas del sistema (nombre, rol, activo). Los roles
+        definen qué módulos ve cada persona. También se relaciona con la tarifa
+        horaria usada en Planilla.
+      </p>
+
+      <h3>Mesas — /admin/mesas</h3>
+      <p>
+        Configuración de mesas del salón (número, zona, capacidad). Son las mesas
+        que aparecen en Pedidos.
+      </p>
+
+      <h3>Menú — /admin/menu</h3>
+      <p>
+        Catálogo de productos que se venden: categorías, nombre, precio, tipo
+        (plato, bebida, combo), activo/inactivo. Es lo que el mesero elige al armar
+        un pedido. Las <em>recetas</em> de inventario se vinculan a estos productos.
+      </p>
+
+      <h3>Configuración — /admin/configuracion</h3>
+      <p>
+        Datos generales del restaurante y parámetros del sistema (por ejemplo
+        numeración de comprobantes internos).
+      </p>
+
+      <div class="ejemplo">
+        <strong>Ejemplo</strong>
+        Se crea el producto “Dragon Roll” en Menú con su precio. Luego en Recetas
+        se indica que usa aguacate, salmón y arroz. Hasta que no exista en Menú,
+        no se puede pedir ni costear.
+      </div>
+    </section>
+
+    <!-- FLUJO -->
+    <section class="modulo" id="flujo">
+      <h2>11. Flujo típico de un día</h2>
+      <ol>
+        <li><strong>Config previa (ocasional):</strong> Menú, mesas, usuarios, insumos y recetas.</li>
+        <li><strong>Apertura:</strong> cajero abre turno de caja; colaboradores marcan entrada en Planilla.</li>
+        <li><strong>Servicio:</strong> Pedidos → Cocina → servir.</li>
+        <li><strong>Cobro:</strong> Ventas (comprobante + descuento de inventario por receta).</li>
+        <li><strong>Compras del día:</strong> facturas de mercadería o gastos en Compras y gastos.</li>
+        <li><strong>Cierre:</strong> turno de caja; cierre diario si aplica.</li>
+        <li><strong>Fin de mes / año:</strong> reportes de Contabilidad y exportes de Planilla / Analítica.</li>
+      </ol>
+    </section>
+
+    <footer>
+      <p>
+        Documento de referencia para Isanami Sushi. Los montos de reportes fiscales
+        y de planilla son herramientas de apoyo; la declaración formal ante Hacienda
+        y la liquidación laboral las define el contador / asesores del negocio.
+      </p>
+      <p>Para actualizar este documento tras cambios del sistema, edite
+        <code>docs/guia-modulos-cliente.html</code> y vuelva a exportar el PDF.</p>
+    </footer>
+  </div>
+</body>
+</html>

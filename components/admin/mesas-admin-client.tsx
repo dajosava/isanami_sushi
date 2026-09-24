@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { guardarMesa, eliminarMesa } from "@/actions/admin.actions";
 import { Button } from "@/components/ui/button";
@@ -25,16 +26,29 @@ const ESTADO_TONO = {
 } as const;
 
 export function MesasAdminClient({ mesas }: { mesas: Mesa[] }) {
+  const router = useRouter();
   const [numero, setNumero] = useState("");
-  const [capacidad, setCapacidad] = useState("4");
+  const [zona, setZona] = useState("");
+  const [capacidad, setCapacidad] = useState("");
   const [pending, startTransition] = useTransition();
   const { toast } = useToast();
 
   function crear() {
+    const num = Number(numero);
+    const cap = Number(capacidad);
+    if (!numero.trim() || !Number.isFinite(num) || num <= 0) {
+      toast("Indica el número de mesa", "peligro");
+      return;
+    }
+    if (!capacidad.trim() || !Number.isFinite(cap) || cap <= 0) {
+      toast("Indica la capacidad", "peligro");
+      return;
+    }
     startTransition(async () => {
       const result = await guardarMesa({
-        numero: Number(numero),
-        capacidad: Number(capacidad),
+        numero: num,
+        capacidad: cap,
+        zona: zona.trim() || undefined,
       });
       if (!result.ok) {
         toast(result.error, "peligro");
@@ -42,7 +56,9 @@ export function MesasAdminClient({ mesas }: { mesas: Mesa[] }) {
       }
       toast("Mesa creada", "exito");
       setNumero("");
-      setCapacidad("4");
+      setZona("");
+      setCapacidad("");
+      router.refresh();
     });
   }
 
@@ -55,6 +71,7 @@ export function MesasAdminClient({ mesas }: { mesas: Mesa[] }) {
         return;
       }
       toast("Mesa eliminada", "exito");
+      router.refresh();
     });
   }
 
@@ -67,17 +84,28 @@ export function MesasAdminClient({ mesas }: { mesas: Mesa[] }) {
         <CardContent className="space-y-3">
           <Input
             type="number"
+            min={1}
+            step={1}
             placeholder="Número de mesa (ej. 6)"
             value={numero}
             onChange={(e) => setNumero(e.target.value)}
           />
           <Input
+            type="text"
+            placeholder="Zona (ej. terraza, salón)"
+            value={zona}
+            onChange={(e) => setZona(e.target.value)}
+            maxLength={40}
+          />
+          <Input
             type="number"
+            min={1}
+            step={1}
             placeholder="Capacidad (ej. 4)"
             value={capacidad}
             onChange={(e) => setCapacidad(e.target.value)}
           />
-          <Button onClick={crear} disabled={pending || !numero}>
+          <Button onClick={crear} disabled={pending || !numero.trim() || !capacidad.trim()}>
             Crear mesa
           </Button>
         </CardContent>
@@ -110,17 +138,16 @@ export function MesasAdminClient({ mesas }: { mesas: Mesa[] }) {
                     </Badge>
                   </td>
                   <td className="px-4 py-2">
-                    <Button
+                    <button
                       type="button"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-sakura-600 hover:bg-sakura-50 hover:text-sakura-700"
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-umeboshi-500 transition hover:bg-umeboshi-500/10 disabled:cursor-not-allowed disabled:opacity-40"
                       onClick={() => eliminar(m.id, m.numero)}
                       disabled={pending}
                       title="Eliminar mesa"
                       aria-label={`Eliminar mesa ${m.numero}`}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                      <Trash2 size={15} strokeWidth={2} aria-hidden />
+                    </button>
                   </td>
                 </tr>
               ))}
