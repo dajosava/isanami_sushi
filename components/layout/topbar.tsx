@@ -19,7 +19,7 @@ export function Topbar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-gold/20 bg-sumi-2/90 px-4 text-washi backdrop-blur-md sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 print:hidden items-center justify-between border-b border-gold/20 bg-sumi-2/90 px-4 text-washi backdrop-blur-md sm:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         {onMenuClick ? (
           <button

@@ -48,18 +48,18 @@ export default async function ComprobanteDetallePage({
   });
 
   return (
-    <div className="mx-auto max-w-lg">
+    <div className="ticket-print-root mx-auto max-w-lg">
       <div className="mb-4 flex justify-end print:hidden">
         <PrintButton />
       </div>
 
-      <Card className="print:border-0 print:bg-white print:shadow-none">
+      <Card className="ticket-print-root print:rounded-none print:border-0 print:bg-white print:shadow-none">
         <CardHeader className="print:hidden">
           <CardTitle>Comprobante {factura.numero_comprobante}</CardTitle>
         </CardHeader>
-        <CardContent className="print:bg-white print:p-0">
-      <article className="p-2 print:p-0">
-        <header className="mb-6 text-center">
+        <CardContent className="ticket-print-root print:bg-white print:p-0">
+      <article className="ticket-termico p-2">
+        <div className="mb-6 text-center print:mb-3">
           <h1 className="font-display text-2xl text-sumi-900">{config?.nombre_comercial ?? "Isanami Sushi"}</h1>
           <p className="text-sm text-sumi-700">
             {config?.canton}, {config?.provincia}
@@ -70,11 +70,11 @@ export default async function ComprobanteDetallePage({
             {new Date(factura.fecha_emision).toLocaleString("es-CR")} · {origen} ·{" "}
             {factura.estado}
           </p>
-        </header>
+        </div>
 
-        <ul className="mb-4 space-y-2 text-sm">
+        <ul className="mb-4 space-y-2 text-sm print:mb-2 print:space-y-1">
           {(factura.factura_items ?? []).map((item, i) => (
-            <li key={i} className="flex justify-between gap-4">
+            <li key={i} className="flex justify-between gap-4 print:gap-2">
               <span>
                 {item.cantidad}x {one(item.productos)?.nombre}
               </span>

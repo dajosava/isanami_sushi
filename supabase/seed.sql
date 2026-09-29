@@ -1,5 +1,6 @@
 -- ============================================================================
 -- Datos iniciales de prueba (seguro de re-ejecutar)
+-- estos datos ya fueron eliminados, solo se mantienen para referencia
 -- ============================================================================
 
 -- Tu usuario admin (ajusta el email si es otro)

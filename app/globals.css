@@ -548,4 +548,26 @@ body {
   #isanami-transition-overlay {
     display: none !important;
   }
+
+  .ticket-termico {
+    /* El área imprimible de la impresora no está centrada en el rollo:
+       positivo corre el contenido a la derecha, negativo a la izquierda. */
+    --ticket-desplazamiento: 10mm;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 calc(2mm - var(--ticket-desplazamiento)) 0 calc(2mm + var(--ticket-desplazamiento)) !important;
+    font-size: 12px;
+    color: #000 !important;
+  }
+
+  .ticket-termico * {
+    color: #000 !important;
+  }
+
+  .ticket-print-root {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
