@@ -278,6 +278,7 @@ export async function actualizarStockInsumo(input: {
   insumoId: string;
   stockActual: number;
   stockMinimo: number;
+  unidadMedidaId: string;
 }) {
   if (!Number.isFinite(input.stockActual) || input.stockActual < 0) {
     return { ok: false as const, error: "El stock actual no es válido" };
@@ -285,8 +286,18 @@ export async function actualizarStockInsumo(input: {
   if (!Number.isFinite(input.stockMinimo) || input.stockMinimo < 0) {
     return { ok: false as const, error: "El stock mínimo no es válido" };
   }
+  if (!input.unidadMedidaId) {
+    return { ok: false as const, error: "Selecciona una unidad de medida" };
+  }
 
   const supabase = createClient();
+  const { error: errorUnidad } = await supabase
+    .from("insumos")
+    .update({ unidad_medida_id: input.unidadMedidaId })
+    .eq("id", input.insumoId);
+
+  if (errorUnidad) return { ok: false as const, error: errorUnidad.message };
+
   const { error } = await supabase.rpc("ajustar_stock_insumo", {
     p_insumo_id: input.insumoId,
     p_stock_nuevo: input.stockActual,

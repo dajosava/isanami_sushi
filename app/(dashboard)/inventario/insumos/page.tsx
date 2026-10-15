@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InsumoForm } from "@/components/inventario/insumo-form";
 import { InsumosTabla } from "@/components/inventario/insumos-tabla";
 import { one } from "@/lib/relations";
@@ -10,7 +9,9 @@ export default async function InsumosPage() {
   const [{ data: insumos }, { data: unidades }] = await Promise.all([
     supabase
       .from("insumos")
-      .select("id, nombre, stock_actual, stock_minimo, costo_unitario_promedio, unidades_medida(abreviatura)")
+      .select(
+        "id, nombre, stock_actual, stock_minimo, costo_unitario_promedio, unidad_medida_id, unidades_medida(abreviatura)"
+      )
       .order("nombre"),
     supabase.from("unidades_medida").select("id, nombre, abreviatura").order("nombre"),
   ]);
@@ -22,6 +23,7 @@ export default async function InsumosPage() {
     stock_minimo: Number(insumo.stock_minimo ?? 0),
     costo_unitario_promedio: Number(insumo.costo_unitario_promedio ?? 0),
     unidad: one(insumo.unidades_medida)?.abreviatura ?? "",
+    unidad_medida_id: (insumo.unidad_medida_id as string | null) ?? "",
   }));
 
   return (
@@ -40,14 +42,7 @@ export default async function InsumosPage() {
 
       <InsumoForm unidades={unidades ?? []} />
 
-      <Card className="overflow-x-auto">
-        <CardHeader>
-          <CardTitle>Listado de insumos</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <InsumosTabla insumos={filas} />
-        </CardContent>
-      </Card>
+      <InsumosTabla insumos={filas} unidades={unidades ?? []} />
     </div>
   );
 }
