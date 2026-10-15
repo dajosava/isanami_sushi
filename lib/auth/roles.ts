@@ -15,11 +15,11 @@ export type Rol = (typeof ROLES)[keyof typeof ROLES];
 
 export const RUTAS_POR_ROL: Record<Rol, string[]> = {
   admin: ["*"],
-  gerente: ["/pedidos", "/cocina", "/inventario", "/contabilidad", "/ventas", "/facturacion", "/analitica", "/planilla", "/admin/mesas"],
-  cajero: ["/pedidos", "/ventas", "/facturacion", "/planilla", "/contabilidad"],
-  mesero: ["/pedidos", "/planilla"],
-  cocina: ["/cocina", "/planilla"],
-  contador: ["/contabilidad", "/analitica", "/planilla"],
+  gerente: ["/pedidos", "/cocina", "/inventario", "/contabilidad", "/ventas", "/facturacion", "/analitica", "/planilla", "/admin/mesas", "/acerca"],
+  cajero: ["/pedidos", "/ventas", "/facturacion", "/planilla", "/contabilidad", "/acerca"],
+  mesero: ["/pedidos", "/planilla", "/acerca"],
+  cocina: ["/cocina", "/planilla", "/acerca"],
+  contador: ["/contabilidad", "/analitica", "/planilla", "/acerca"],
 };
 
 export function puedeAcceder(rol: Rol, ruta: string): boolean {

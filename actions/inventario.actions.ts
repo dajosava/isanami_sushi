@@ -274,29 +274,24 @@ export async function registrarMerma(input: { insumoId: string; cantidad: number
   return { ok: true as const };
 }
 
-export async function actualizarStockMinimo(input: { insumoId: string; stockMinimo: number }) {
-  const supabase = createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) return { ok: false as const, error: "No autenticado" };
-
-  const { data: usuario } = await supabase
-    .from("usuarios")
-    .select("rol")
-    .eq("id", userData.user.id)
-    .single();
-
-  if (!usuario || !["admin", "gerente"].includes(usuario.rol)) {
-    return { ok: false as const, error: "Sin permiso" };
+export async function actualizarStockInsumo(input: {
+  insumoId: string;
+  stockActual: number;
+  stockMinimo: number;
+}) {
+  if (!Number.isFinite(input.stockActual) || input.stockActual < 0) {
+    return { ok: false as const, error: "El stock actual no es válido" };
   }
-
   if (!Number.isFinite(input.stockMinimo) || input.stockMinimo < 0) {
     return { ok: false as const, error: "El stock mínimo no es válido" };
   }
 
-  const { error } = await supabase
-    .from("insumos")
-    .update({ stock_minimo: input.stockMinimo })
-    .eq("id", input.insumoId);
+  const supabase = createClient();
+  const { error } = await supabase.rpc("ajustar_stock_insumo", {
+    p_insumo_id: input.insumoId,
+    p_stock_nuevo: input.stockActual,
+    p_stock_minimo: input.stockMinimo,
+  });
 
   if (error) return { ok: false as const, error: error.message };
 

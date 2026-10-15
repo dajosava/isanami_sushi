@@ -19,6 +19,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Clock,
+  Info,
 } from "lucide-react";
 import type { Rol } from "@/lib/auth/roles";
 import { SakuraBranch } from "@/components/ui/japanese-ornaments";
@@ -46,6 +47,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/admin/mesas", label: "Mesas", kanji: "卓", icon: LayoutGrid, roles: ["admin", "gerente"] },
   { href: "/admin/menu", label: "Menu", kanji: "献立", icon: BookOpen, roles: ["admin"] },
   { href: "/admin/configuracion", label: "Config", kanji: "設定", icon: Settings, roles: ["admin"] },
+  { href: "/acerca", label: "Acerca de", kanji: "情報", icon: Info, roles: ["admin", "gerente", "cajero", "mesero", "cocina", "contador"] },
 ];
 
 export function Sidebar({

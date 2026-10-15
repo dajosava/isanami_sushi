@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { EditIconButton } from "@/components/ui/edit-icon-button";
 import { useToast } from "@/components/ui/toast";
 import { formatColon } from "@/lib/utils";
-import { actualizarStockMinimo, eliminarInsumo } from "@/actions/inventario.actions";
+import { actualizarStockInsumo, eliminarInsumo } from "@/actions/inventario.actions";
 import { clsx } from "clsx";
 
 export type InsumoRow = {
@@ -42,6 +42,7 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [stockDraft, setStockDraft] = useState("");
   const [minimoDraft, setMinimoDraft] = useState("");
 
   const ordenados = useMemo(() => {
@@ -68,27 +69,51 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
 
   function empezarEdicion(insumo: InsumoRow) {
     setEditandoId(insumo.id);
+    setStockDraft(String(insumo.stock_actual));
     setMinimoDraft(String(insumo.stock_minimo));
   }
 
   function cancelarEdicion() {
     setEditandoId(null);
+    setStockDraft("");
     setMinimoDraft("");
   }
 
-  function guardarMinimo(insumoId: string) {
-    const valor = Number(minimoDraft);
-    if (!Number.isFinite(valor) || valor < 0) {
+  function guardarEdicion(insumo: InsumoRow) {
+    const stock = Number(stockDraft);
+    const minimo = Number(minimoDraft);
+    if (stockDraft.trim() === "" || !Number.isFinite(stock) || stock < 0) {
+      toast("Stock actual inválido", "peligro");
+      return;
+    }
+    if (minimoDraft.trim() === "" || !Number.isFinite(minimo) || minimo < 0) {
       toast("Stock mínimo inválido", "peligro");
       return;
     }
+
+    const diferencia = stock - Number(insumo.stock_actual);
+    if (
+      diferencia !== 0 &&
+      !window.confirm(
+        `El stock de "${insumo.nombre}" pasará de ${insumo.stock_actual} a ${stock} ${insumo.unidad} (${
+          diferencia > 0 ? "+" : ""
+        }${Number(diferencia.toFixed(3))}). ¿Confirmar ajuste?`
+      )
+    ) {
+      return;
+    }
+
     startTransition(async () => {
-      const result = await actualizarStockMinimo({ insumoId, stockMinimo: valor });
+      const result = await actualizarStockInsumo({
+        insumoId: insumo.id,
+        stockActual: stock,
+        stockMinimo: minimo,
+      });
       if (!result.ok) {
         toast(result.error, "peligro");
         return;
       }
-      toast("Stock mínimo actualizado", "exito");
+      toast("Insumo actualizado", "exito");
       cancelarEdicion();
       router.refresh();
     });
@@ -168,7 +193,25 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
                 >
                   <td className="px-4 py-2 font-medium">{insumo.nombre}</td>
                   <td className="px-4 py-2 tabular-nums">
-                    {stock} {insumo.unidad}
+                    {editando ? (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.001"
+                          value={stockDraft}
+                          onChange={(e) => setStockDraft(e.target.value)}
+                          placeholder="Stock actual"
+                          className="w-28"
+                          autoFocus
+                        />
+                        <span className="text-xs text-sumi-600">{insumo.unidad}</span>
+                      </div>
+                    ) : (
+                      <>
+                        {stock} {insumo.unidad}
+                      </>
+                    )}
                   </td>
                   <td className="px-4 py-2">
                     {editando ? (
@@ -208,7 +251,7 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
                           type="button"
                           className="h-8 px-2 text-xs"
                           disabled={pending}
-                          onClick={() => guardarMinimo(insumo.id)}
+                          onClick={() => guardarEdicion(insumo)}
                         >
                           Guardar
                         </Button>
@@ -225,7 +268,7 @@ export function InsumosTabla({ insumos }: { insumos: InsumoRow[] }) {
                     ) : (
                       <div className="flex flex-wrap items-center gap-1">
                         <EditIconButton
-                          label={`Editar mínimo de ${insumo.nombre}`}
+                          label={`Editar stock de ${insumo.nombre}`}
                           disabled={pending || editandoId !== null}
                           onClick={() => empezarEdicion(insumo)}
                         />

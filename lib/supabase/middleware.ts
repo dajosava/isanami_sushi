@@ -43,7 +43,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/inventario") ||
     request.nextUrl.pathname.startsWith("/contabilidad") ||
     request.nextUrl.pathname.startsWith("/admin") ||
-    request.nextUrl.pathname.startsWith("/analitica");
+    request.nextUrl.pathname.startsWith("/analitica") ||
+    request.nextUrl.pathname.startsWith("/acerca");
 
   if (!user && isDashboardRoute) {
     const url = request.nextUrl.clone();

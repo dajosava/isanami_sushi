@@ -2,6 +2,28 @@
 
 Todos los cambios notables del proyecto Isanami Sushi.
 
+## v1.0.1 — 2026-10-14
+
+### Sistema
+- Nueva página **Acerca de** (`/acerca`) al final del menú, visible para todos los roles: versión, fecha del último despliegue, compilación y desarrollador (David Salazar Valverde).
+- La versión se toma de `package.json` y la fecha de despliegue se fija al compilar (`next.config.mjs`).
+
+### Inventario
+- La edición en el listado de insumos permite modificar el **stock actual** además del stock mínimo, con confirmación que muestra la diferencia. Cada cambio de stock queda registrado como movimiento tipo `ajuste`.
+- Migración `0032_ajustar_stock_insumo.sql` (RPC `ajustar_stock_insumo`).
+
+### Ventas — impresión térmica
+- Ticket ajustado al ancho del papel de 80 mm, centrado y sin la barra superior (menú, kanji, Salir) ni el menú lateral en la impresión.
+
+### Mesas
+- El admin puede **eliminar mesas**; los campos para agregar mesas muestran sus placeholders correctamente (incluye campo de zona).
+
+### Contabilidad
+- Los montos de **abrir turno** y **cerrar caja** muestran el placeholder en lugar de un 0.
+
+### Documentación
+- Guía para el cliente con la explicación de cada módulo (`docs/guia-modulos-cliente.html`, imprimible a PDF).
+
 ## 2026-09-21
 
 ### Inventario
