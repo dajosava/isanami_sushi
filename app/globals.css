@@ -15,14 +15,30 @@
   --gold: #c9a35c;
   --gold-dim: #8a743f;
   --ink: #2a1c1a;
+  --ink-muted: #5a4542;
+  --ink-soft: #3d2a28;
   --font-sans: "Zen Maru Gothic", sans-serif;
   --font-display: "Shippori Mincho", serif;
+  --radius-panel: 0.625rem;
+  --shadow-panel: 0 10px 36px rgba(0, 0, 0, 0.35);
+  --panel-border: rgba(201, 163, 92, 0.28);
+  --panel-header-border: rgba(201, 163, 92, 0.22);
+  --panel-body-bg: rgba(244, 236, 223, 0.96);
+  --panel-shell-bg: rgba(244, 236, 223, 0.08);
+  --space-grid: 0.75rem;
+}
+
+html {
+  min-height: 100%;
+  background-color: var(--sumi-1);
 }
 
 body {
   @apply font-sans antialiased;
+  min-height: 100%;
+  min-height: 100dvh;
   color: var(--washi);
-  background: var(--sumi-1);
+  background-color: var(--sumi-1);
 }
 
 /* Fondo principal sumi + resplandores + seigaiha + grano
@@ -69,16 +85,20 @@ body {
 /* Paneles / cards */
 .isanami-panel {
   position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
   overflow: hidden;
-  border-radius: 0.625rem;
-  border: 1px solid rgba(201, 163, 92, 0.28);
-  background-color: rgba(244, 236, 223, 0.08);
-  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--panel-border);
+  background-color: var(--panel-shell-bg);
+  box-shadow: var(--shadow-panel);
   backdrop-filter: blur(10px);
 }
 
 .isanami-panel-header {
-  border-bottom: 1px solid rgba(201, 163, 92, 0.22);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--panel-header-border);
   background: linear-gradient(180deg, rgba(18, 10, 13, 0.72) 0%, rgba(28, 16, 19, 0.88) 100%);
   color: var(--washi);
   transition: background-color 150ms ease;
@@ -100,7 +120,7 @@ body {
 .isanami-surface {
   @apply rounded-lg text-ink backdrop-blur-sm;
   border: 1px solid rgba(201, 163, 92, 0.35);
-  background-color: rgba(244, 236, 223, 0.96);
+  background-color: var(--panel-body-bg);
   box-shadow: 0 8px 28px rgba(18, 10, 13, 0.28);
   color: var(--ink);
 }
@@ -110,8 +130,17 @@ body {
 }
 
 .isanami-panel-body {
-  background-color: rgba(244, 236, 223, 0.96);
+  flex: 1 1 auto;
+  min-height: 0;
+  background-color: var(--panel-body-bg);
   color: var(--ink);
+}
+
+/* Grids de tarjetas: misma altura por fila */
+.isanami-card-grid {
+  display: grid;
+  gap: var(--space-grid);
+  align-items: stretch;
 }
 
 .isanami-table thead {
@@ -192,14 +221,14 @@ body {
 .isanami-surface .text-sumi-800,
 .isanami-dashboard .isanami-panel-body .text-sumi-800,
 .isanami-dashboard .isanami-surface .text-sumi-800 {
-  color: #3d2a28;
+  color: var(--ink-soft);
 }
 
 .isanami-panel-body .text-sumi-700,
 .isanami-surface .text-sumi-700,
 .isanami-dashboard .isanami-panel-body .text-sumi-700,
 .isanami-dashboard .isanami-surface .text-sumi-700 {
-  color: #5a4542;
+  color: var(--ink-muted);
 }
 
 .isanami-light-chip {
@@ -301,7 +330,7 @@ body {
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 0.625rem;
+  border-radius: var(--radius-panel);
   border: 1px solid rgba(201, 163, 92, 0.32);
   background: rgba(244, 236, 223, 0.1);
   backdrop-filter: blur(8px);

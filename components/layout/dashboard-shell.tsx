@@ -55,7 +55,7 @@ export function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen min-h-dvh">
       {mobileNavOpen ? (
         <button
           type="button"
@@ -79,13 +79,13 @@ export function DashboardShell({
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-h-screen min-h-dvh min-w-0 flex-1 flex-col bg-isanami-sumi">
         <Topbar
           nombreUsuario={nombreUsuario}
           onMenuClick={() => setMobileNavOpen(true)}
         />
-        <main className="isanami-dashboard relative flex-1 overflow-hidden bg-isanami-sumi p-3 sm:p-4 lg:p-6">
-          <div className="relative z-[1]">{children}</div>
+        <main className="isanami-dashboard relative z-[1] flex-1 p-3 sm:p-4 lg:p-6">
+          {children}
         </main>
       </div>
     </div>
