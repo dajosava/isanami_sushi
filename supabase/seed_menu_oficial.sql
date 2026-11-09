@@ -28,7 +28,8 @@ from (values
   ('Poke bowl', 9),
   ('Sushi burger', 10),
   ('Bebidas', 11),
-  ('Postres', 12)
+  ('Gaseosas', 12),
+  ('Postres', 13)
 ) as v(nombre, orden)
 where not exists (
   select 1 from public.categorias_menu c where c.nombre = v.nombre
@@ -123,7 +124,14 @@ from (values
   ('Bebidas', 'Batido en leche', 'Batido de frutas en leche.', 2000, 'bebida'),
   ('Bebidas', 'Batido con helado', 'Batido con helado (extra).', 500, 'bebida'),
   ('Bebidas', 'Soju con alcohol', 'Bebida alcohólica coreana.', 3500, 'bebida'),
-  ('Bebidas', 'Gaseosa', 'Refresco.', 1200, 'bebida'),
+
+  -- Gaseosas
+  ('Gaseosas', 'Coca cero', 'Gaseosa.', 1200, 'bebida'),
+  ('Gaseosas', 'Coca regular', 'Gaseosa.', 1200, 'bebida'),
+  ('Gaseosas', 'Fanta naranja', 'Gaseosa.', 1200, 'bebida'),
+  ('Gaseosas', 'Fresa', 'Gaseosa.', 1200, 'bebida'),
+  ('Gaseosas', 'Fresca', 'Gaseosa.', 1200, 'bebida'),
+  ('Gaseosas', 'Gin', 'Gaseosa.', 1200, 'bebida'),
 
   -- Postres
   ('Postres', 'Helado tempura', 'Helado cubierto en tempura.', 3500, 'plato'),
@@ -150,7 +158,8 @@ from (values
   ('Poke bowl', 9),
   ('Sushi burger', 10),
   ('Bebidas', 11),
-  ('Postres', 12)
+  ('Gaseosas', 12),
+  ('Postres', 13)
 ) as v(nombre, orden)
 where c.nombre = v.nombre;
 

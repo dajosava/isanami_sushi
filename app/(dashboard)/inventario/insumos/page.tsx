@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default async function InsumosPage() {
   const supabase = createClient();
-  const [{ data: insumos }, { data: unidades }] = await Promise.all([
+  const [{ data: insumos }, { data: unidades }, { data: recetas }] = await Promise.all([
     supabase
       .from("insumos")
       .select(
@@ -14,7 +14,12 @@ export default async function InsumosPage() {
       )
       .order("nombre"),
     supabase.from("unidades_medida").select("id, nombre, abreviatura").order("nombre"),
+    supabase.from("recetas").select("insumo_id"),
   ]);
+
+  const vinculadosAlMenu = new Set(
+    (recetas ?? []).map((r) => r.insumo_id as string).filter(Boolean)
+  );
 
   const filas = (insumos ?? []).map((insumo) => ({
     id: insumo.id as string,
@@ -24,6 +29,7 @@ export default async function InsumosPage() {
     costo_unitario_promedio: Number(insumo.costo_unitario_promedio ?? 0),
     unidad: one(insumo.unidades_medida)?.abreviatura ?? "",
     unidad_medida_id: (insumo.unidad_medida_id as string | null) ?? "",
+    en_menu: vinculadosAlMenu.has(insumo.id as string),
   }));
 
   return (

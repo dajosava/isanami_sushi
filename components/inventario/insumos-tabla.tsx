@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, X } from "lucide-react";
+import { BookPlus, Search, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import {
   actualizarStockInsumo,
   eliminarInsumo,
 } from "@/actions/inventario.actions";
+import { publicarInsumoEnMenu } from "@/actions/admin.actions";
 import { clsx } from "clsx";
 
 export type InsumoRow = {
@@ -25,6 +26,7 @@ export type InsumoRow = {
   costo_unitario_promedio: number;
   unidad: string;
   unidad_medida_id: string;
+  en_menu: boolean;
 };
 
 export type UnidadMedidaOpcion = {
@@ -201,6 +203,45 @@ export function InsumosTabla({
     });
   }
 
+  function publicarEnMenu(insumo: InsumoRow) {
+    const raw = window.prompt(
+      `Precio de venta para "${insumo.nombre}" en el menú (₡):`,
+      "1200",
+    );
+    if (raw === null) return;
+    const precio = Number(String(raw).replace(/,/g, "").trim());
+    if (!Number.isFinite(precio) || precio < 0) {
+      toast("Precio inválido", "peligro");
+      return;
+    }
+    if (
+      !window.confirm(
+        `Se agregará "${insumo.nombre}" al menú en la categoría Gaseosas a ${formatColon(precio)} y se creará la receta 1 ${insumo.unidad || "u"} = 1 venta. ¿Continuar?`,
+      )
+    ) {
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await publicarInsumoEnMenu({
+        insumoId: insumo.id,
+        precioVenta: precio,
+        tipo: "bebida",
+      });
+      if (!result.ok) {
+        toast(result.error, "peligro");
+        return;
+      }
+      toast(
+        result.creado
+          ? `"${insumo.nombre}" agregado al menú`
+          : `"${insumo.nombre}" actualizado en el menú`,
+        "exito",
+      );
+      router.refresh();
+    });
+  }
+
   return (
     <Card className="overflow-x-auto">
       <CardHeader className="flex-wrap">
@@ -274,8 +315,9 @@ export function InsumosTabla({
                 <th className="px-4 py-2">Stock actual</th>
                 <th className="px-4 py-2">Stock mínimo</th>
                 <th className="px-4 py-2">Costo promedio</th>
-                <th className="px-4 py-2">Alerta</th>
-                <th className="px-4 py-2">Acciones</th>
+              <th className="px-4 py-2">Alerta</th>
+              <th className="px-4 py-2">Menú</th>
+              <th className="px-4 py-2">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -367,6 +409,13 @@ export function InsumosTabla({
                       )}
                     </td>
                     <td className="px-4 py-2">
+                      {insumo.en_menu ? (
+                        <Badge tono="exito">En menú</Badge>
+                      ) : (
+                        <span className="text-xs text-sumi-600">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2">
                       {editando ? (
                         <div className="flex flex-wrap gap-1">
                           <Button
@@ -394,6 +443,18 @@ export function InsumosTabla({
                             disabled={pending || editandoId !== null}
                             onClick={() => empezarEdicion(insumo)}
                           />
+                          {!insumo.en_menu ? (
+                            <button
+                              type="button"
+                              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-wasabi-500 transition hover:bg-wasabi-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+                              disabled={pending || editandoId !== null}
+                              onClick={() => publicarEnMenu(insumo)}
+                              title="Agregar al menú"
+                              aria-label={`Agregar ${insumo.nombre} al menú`}
+                            >
+                              <BookPlus size={15} strokeWidth={2} aria-hidden />
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-umeboshi-500 transition hover:bg-umeboshi-500/10 disabled:cursor-not-allowed disabled:opacity-40"

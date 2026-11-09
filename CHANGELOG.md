@@ -18,6 +18,8 @@ Todos los cambios notables del proyecto Isanami Sushi.
 - Migración `0032_ajustar_stock_insumo.sql` (RPC `ajustar_stock_insumo`).
 - Nueva columna **Unidad** en el listado; la edición permite cambiar la unidad de medida del insumo (con confirmación).
 - **Buscador** en el encabezado del listado de insumos: filtra por nombre al escribir (sin distinguir mayúsculas ni tildes).
+- Botón **Agregar al menú** en insumos: crea el producto (mismo nombre) en la categoría **Gaseosas** + receta 1:1 para que al vender se descuente stock. Columna “Menú” indica si ya está vinculado.
+- Script SQL `supabase/scripts/match_bebidas_menu.sql`: crea categoría **Gaseosas**, vincula Coca cero, Coca regular, Fanta naranja, Fresa, Fresca y Gin (₡1.200), y desactiva la “Gaseosa” genérica.
 
 ### Ventas — impresión térmica
 - Ticket ajustado al ancho del papel de 80 mm, centrado y sin la barra superior (menú, kanji, Salir) ni el menú lateral en la impresión.

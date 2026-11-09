@@ -421,6 +421,129 @@ export async function guardarRecetaLineas(input: {
   return { ok: true as const, guardadas: rows.length };
 }
 
+/**
+ * Publica un insumo en el menú (mismo nombre) con receta 1:1.
+ * Sirve para bebidas/mercadería que se venden tal cual (ej. gaseosas).
+ */
+export async function publicarInsumoEnMenu(input: {
+  insumoId: string;
+  precioVenta: number;
+  tipo?: "plato" | "bebida" | "combo";
+  /** Por defecto Gaseosas cuando tipo=bebida. */
+  categoriaNombre?: string;
+}) {
+  const auth = await requireAdminOrGerente();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
+
+  if (!Number.isFinite(input.precioVenta) || input.precioVenta < 0) {
+    return { ok: false as const, error: "El precio de venta no es válido" };
+  }
+
+  const { data: insumo } = await auth.supabase
+    .from("insumos")
+    .select("id, nombre, unidad_medida_id")
+    .eq("id", input.insumoId)
+    .single();
+
+  if (!insumo) return { ok: false as const, error: "Insumo no encontrado" };
+  if (!insumo.unidad_medida_id) {
+    return { ok: false as const, error: "El insumo no tiene unidad de medida" };
+  }
+
+  const tipo = input.tipo ?? "bebida";
+  const categoriaNombre =
+    input.categoriaNombre?.trim() || (tipo === "bebida" ? "Gaseosas" : null);
+
+  let categoriaId: string | null = null;
+  if (categoriaNombre) {
+    const { data: categoria } = await auth.supabase
+      .from("categorias_menu")
+      .select("id")
+      .eq("nombre", categoriaNombre)
+      .limit(1)
+      .maybeSingle();
+
+    if (categoria?.id) {
+      categoriaId = categoria.id;
+    } else {
+      const { data: creada, error: errorCat } = await auth.supabase
+        .from("categorias_menu")
+        .insert({ nombre: categoriaNombre, orden: categoriaNombre === "Gaseosas" ? 12 : 99 })
+        .select("id")
+        .single();
+      if (errorCat) return { ok: false as const, error: errorCat.message };
+      categoriaId = creada.id;
+    }
+  }
+
+  const { data: productosExistentes } = await auth.supabase
+    .from("productos")
+    .select("id, nombre, activo")
+    .ilike("nombre", insumo.nombre);
+
+  const productoMatch =
+    (productosExistentes ?? []).find(
+      (p) => p.nombre.trim().toLowerCase() === insumo.nombre.trim().toLowerCase()
+    ) ?? null;
+
+  let productoId = productoMatch?.id ?? null;
+  const descripcion = tipo === "bebida" ? "Gaseosa." : null;
+
+  if (!productoId) {
+    const { data: creado, error } = await auth.supabase
+      .from("productos")
+      .insert({
+        nombre: insumo.nombre,
+        descripcion,
+        precio_venta: input.precioVenta,
+        impuesto_iva_pct: 13,
+        tipo,
+        activo: true,
+        categoria_id: categoriaId,
+      })
+      .select("id")
+      .single();
+    if (error) return { ok: false as const, error: error.message };
+    productoId = creado.id;
+  } else {
+    const { error } = await auth.supabase
+      .from("productos")
+      .update({
+        nombre: insumo.nombre,
+        precio_venta: input.precioVenta,
+        tipo,
+        activo: true,
+        ...(categoriaId ? { categoria_id: categoriaId } : {}),
+        ...(descripcion ? { descripcion } : {}),
+      })
+      .eq("id", productoId);
+    if (error) return { ok: false as const, error: error.message };
+  }
+
+  const { error: errorReceta } = await auth.supabase.from("recetas").upsert(
+    {
+      producto_id: productoId,
+      insumo_id: insumo.id,
+      cantidad_requerida: 1,
+      unidad_medida_id: insumo.unidad_medida_id,
+    },
+    { onConflict: "producto_id,insumo_id" }
+  );
+  if (errorReceta) return { ok: false as const, error: errorReceta.message };
+
+  revalidatePath("/inventario/insumos");
+  revalidatePath("/inventario/recetas");
+  revalidatePath("/admin/menu");
+  revalidatePath("/pedidos");
+  revalidateTag(MENU_CACHE_TAG);
+
+  return {
+    ok: true as const,
+    productoId,
+    creado: !productoMatch,
+  };
+}
+
 export async function guardarMesa(input: {
   id?: string;
   numero: number;
