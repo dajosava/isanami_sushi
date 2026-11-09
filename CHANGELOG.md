@@ -4,6 +4,11 @@ Todos los cambios notables del proyecto Isanami Sushi.
 
 ## v1.0.1 — 2026-10-14
 
+### UI / estilos
+- Fondo del dashboard cubre toda la altura del contenido (sin corte de tono al hacer scroll).
+- Paneles/tarjetas con altura uniforme en grids: cuerpo crema con `flex: 1` (recetas, cocina, ventas, analítica, mesas, cierres).
+- Tokens estructurales en CSS (`--radius-panel`, `--panel-body-bg`, `--space-grid`, etc.).
+
 ### Sistema
 - Nueva página **Acerca de** (`/acerca`) al final del menú, visible para todos los roles: versión, fecha del último despliegue, compilación y desarrollador (David Salazar Valverde).
 - La versión se toma de `package.json` y la fecha de despliegue se fija al compilar (`next.config.mjs`).

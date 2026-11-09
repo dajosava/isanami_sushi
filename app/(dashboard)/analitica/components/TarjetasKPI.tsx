@@ -42,7 +42,7 @@ export function TarjetasKPI({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-4">
+    <div className="isanami-card-grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4">
       {tarjetas.map((t) => (
         <Card key={t.titulo}>
           <CardHeader className="py-2">

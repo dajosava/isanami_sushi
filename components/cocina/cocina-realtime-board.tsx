@@ -120,11 +120,11 @@ export function CocinaRealtimeBoard({ comandasIniciales }: { comandasIniciales: 
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 pb-24 sm:grid-cols-2 lg:grid-cols-3 lg:pb-0">
+    <div className="isanami-card-grid grid-cols-1 pb-24 sm:grid-cols-2 lg:grid-cols-3 lg:pb-0">
       {comandas.map((comanda) => {
         const items = parseItems(comanda.items);
         return (
-          <Card key={comanda.id} className="flex flex-col">
+          <Card key={comanda.id}>
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
@@ -136,7 +136,7 @@ export function CocinaRealtimeBoard({ comandasIniciales }: { comandasIniciales: 
                 <Badge tono="info">{comanda.estado}</Badge>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-1 flex-col">
+            <CardContent className="flex flex-col">
               <ul className="mb-3 flex-1 space-y-2 text-sm text-sumi-700">
                 {items.map((item, idx) => {
                   const nombre = item.producto ?? "Producto";

@@ -16,7 +16,7 @@ export function TablaOperacion({
   cargando?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+    <div className="isanami-card-grid grid-cols-1 xl:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Ventas por mesero</CardTitle>

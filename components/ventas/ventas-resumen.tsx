@@ -81,7 +81,7 @@ export function VentasResumen({ resumen }: { resumen: ResumenVentas }) {
         </p>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="isanami-card-grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4">
         {kpisUi.map((k) => (
           <Card key={k.label}>
             <CardHeader className="py-2">
@@ -128,7 +128,7 @@ export function VentasResumen({ resumen }: { resumen: ResumenVentas }) {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="isanami-card-grid grid-cols-1 lg:grid-cols-2">
         <RankingTabla
           titulo="Más vendidos"
           filas={topProductos}

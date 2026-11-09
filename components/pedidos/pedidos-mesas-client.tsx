@@ -60,7 +60,7 @@ export function PedidosMesasClient({
         />
 
         {pedidosParaLlevar.length > 0 ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="isanami-card-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {pedidosParaLlevar.map((pedido) => (
               <Link
                 key={pedido.id}
@@ -100,7 +100,7 @@ export function PedidosMesasClient({
 
       <section>
         <SectionTitle kanji="卓" title="Mesas" />
-        <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="isanami-card-grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {mesas.map((mesa) => (
             <Link
               key={mesa.id}

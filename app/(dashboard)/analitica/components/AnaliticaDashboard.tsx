@@ -118,17 +118,17 @@ export function AnaliticaDashboard() {
         <>
           <TarjetasKPI kpis={data.kpis} cargando={isFetching} />
 
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="isanami-card-grid grid-cols-1 xl:grid-cols-2">
             <GraficoVentasTiempo datos={data.ventasPorDia} cargando={isFetching} />
             <GraficoVentasPorHora datos={data.ventasPorHora} cargando={isFetching} />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="isanami-card-grid grid-cols-1 xl:grid-cols-2">
             <GraficoVentasDiaSemana datos={data.ventasDiaSemana} cargando={isFetching} />
             <VentasPorCategoria datos={data.porCategoria} cargando={isFetching} />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="isanami-card-grid grid-cols-1 xl:grid-cols-2">
             <TopProductos titulo="Top 10 productos" datos={data.topProductos} cargando={isFetching} />
             <TopProductos titulo="Menor rotacion" datos={data.bajaRotacion} cargando={isFetching} baja />
           </div>
@@ -148,12 +148,12 @@ export function AnaliticaDashboard() {
 
       {consultado && isFetching && !data ? (
         <div className="space-y-4 animate-pulse">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="isanami-card-grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-24 rounded-lg bg-white/10" />
             ))}
           </div>
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="isanami-card-grid grid-cols-1 xl:grid-cols-2">
             <div className="h-72 rounded-lg bg-white/10" />
             <div className="h-72 rounded-lg bg-white/10" />
           </div>
