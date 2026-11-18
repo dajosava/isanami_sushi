@@ -37,8 +37,27 @@ body {
   @apply font-sans antialiased;
   min-height: 100%;
   min-height: 100dvh;
+  font-weight: 500;
   color: var(--washi);
   background-color: var(--sumi-1);
+}
+
+/* Jerarquía un poco más marcada: el cuerpo ya va en 500 */
+.font-normal {
+  font-weight: 500;
+}
+.font-medium {
+  font-weight: 600;
+}
+.font-semibold {
+  font-weight: 700;
+}
+
+.isanami-field,
+.isanami-table,
+.isanami-panel-body,
+.isanami-surface {
+  font-weight: 500;
 }
 
 /* Fondo principal sumi + resplandores + seigaiha + grano
@@ -312,7 +331,7 @@ body {
   gap: 1rem;
   font-family: var(--font-display);
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--gold);
 }
 

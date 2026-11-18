@@ -14,6 +14,7 @@ Todos los cambios notables del proyecto Isanami Sushi.
 - La versión se toma de `package.json` y la fecha de despliegue se fija al compilar (`next.config.mjs`).
 
 ### Inventario
+- Nueva unidad de medida **porción** (`porc`) para insumos, recetas y compras (carnes y otros porcionados). Migración `0033_unidad_porcion.sql`.
 - La edición en el listado de insumos permite modificar el **stock actual** además del stock mínimo, con confirmación que muestra la diferencia. Cada cambio de stock queda registrado como movimiento tipo `ajuste`.
 - Migración `0032_ajustar_stock_insumo.sql` (RPC `ajustar_stock_insumo`).
 - Nueva columna **Unidad** en el listado; la edición permite cambiar la unidad de medida del insumo (con confirmación).

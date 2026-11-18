@@ -10,7 +10,7 @@ create table unidades_medida (
 
 insert into unidades_medida (nombre, abreviatura) values
   ('kilogramo', 'kg'), ('gramo', 'g'), ('litro', 'l'),
-  ('mililitro', 'ml'), ('unidad', 'u');
+  ('mililitro', 'ml'), ('unidad', 'u'), ('porción', 'porc');
 
 create table proveedores (
   id uuid primary key default gen_random_uuid(),
