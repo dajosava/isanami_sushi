@@ -410,10 +410,14 @@ export async function guardarRecetaLineas(input: {
     });
   }
 
-  const { error } = await supabase.from("recetas").upsert(rows, {
-    onConflict: "producto_id,insumo_id",
-  });
+  // Reemplazo completo: permite quitar ingredientes al editar.
+  const { error: errorBorrar } = await supabase
+    .from("recetas")
+    .delete()
+    .eq("producto_id", input.producto_id);
+  if (errorBorrar) return { ok: false as const, error: errorBorrar.message };
 
+  const { error } = await supabase.from("recetas").insert(rows);
   if (error) return { ok: false as const, error: error.message };
 
   revalidatePath("/inventario/recetas");

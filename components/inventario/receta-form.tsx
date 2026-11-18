@@ -15,6 +15,16 @@ interface Option {
   nombre: string;
 }
 
+export type RecetaLineaExistente = {
+  insumoId: string;
+  cantidad: number;
+  unidadId: string;
+};
+
+export type ProductoConReceta = Option & {
+  recetas: RecetaLineaExistente[];
+};
+
 type LineaReceta = {
   key: string;
   insumoId: string;
@@ -22,36 +32,72 @@ type LineaReceta = {
   unidadId: string;
 };
 
-function nuevaLinea(unidades: Option[], insumos: Option[]): LineaReceta {
+function claveLinea() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function nuevaLinea(unidades: Option[]): LineaReceta {
   return {
-    key: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    key: claveLinea(),
     insumoId: "",
     cantidad: "",
     unidadId: unidades[0]?.id ?? "",
   };
 }
 
+function lineasDesdeReceta(
+  recetas: RecetaLineaExistente[],
+  unidades: Option[]
+): LineaReceta[] {
+  if (!recetas.length) return [nuevaLinea(unidades)];
+  return recetas.map((r) => ({
+    key: claveLinea(),
+    insumoId: r.insumoId,
+    cantidad: String(r.cantidad),
+    unidadId: r.unidadId || unidades[0]?.id || "",
+  }));
+}
+
 export function RecetaForm({
   productos,
   insumos,
   unidades,
+  productoInicialId,
 }: {
-  productos: Option[];
+  productos: ProductoConReceta[];
   insumos: Option[];
   unidades: Option[];
+  /** Si se pasa (p. ej. al hacer clic en una tarjeta), carga esa receta. */
+  productoInicialId?: string | null;
 }) {
   const router = useRouter();
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
-  const [productoId, setProductoId] = useState("");
-  const [lineas, setLineas] = useState<LineaReceta[]>([nuevaLinea(unidades, insumos)]);
+
+  const inicial = productoInicialId
+    ? productos.find((p) => p.id === productoInicialId)
+    : null;
+
+  const [productoId, setProductoId] = useState(inicial?.id ?? "");
+  const [lineas, setLineas] = useState<LineaReceta[]>(() =>
+    inicial ? lineasDesdeReceta(inicial.recetas, unidades) : [nuevaLinea(unidades)]
+  );
+
+  const productoActual = productos.find((p) => p.id === productoId) ?? null;
+  const editandoExistente = (productoActual?.recetas.length ?? 0) > 0;
+
+  function seleccionarProducto(id: string) {
+    setProductoId(id);
+    const producto = productos.find((p) => p.id === id);
+    setLineas(lineasDesdeReceta(producto?.recetas ?? [], unidades));
+  }
 
   function actualizarLinea(key: string, patch: Partial<LineaReceta>) {
     setLineas((prev) => prev.map((l) => (l.key === key ? { ...l, ...patch } : l)));
   }
 
   function agregarLinea() {
-    setLineas((prev) => [...prev, nuevaLinea(unidades, insumos)]);
+    setLineas((prev) => [...prev, nuevaLinea(unidades)]);
   }
 
   function quitarLinea(key: string) {
@@ -94,16 +140,22 @@ export function RecetaForm({
         toast(result.error, "peligro");
         return;
       }
-      toast(`${result.guardadas} ingrediente(s) guardados`, "exito");
-      setLineas([nuevaLinea(unidades, insumos)]);
+      toast(
+        editandoExistente
+          ? `Receta actualizada (${result.guardadas} ingrediente(s))`
+          : `${result.guardadas} ingrediente(s) guardados`,
+        "exito"
+      );
       router.refresh();
     });
   }
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6" id="armar-receta">
       <CardHeader>
-        <CardTitle>Armar receta (varios ingredientes)</CardTitle>
+        <CardTitle>
+          {editandoExistente ? "Editar receta" : "Armar receta (varios ingredientes)"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -111,7 +163,7 @@ export function RecetaForm({
             <label className="block text-sm font-medium text-sumi-800">Producto del menú</label>
             <Select
               value={productoId}
-              onChange={(e) => setProductoId(e.target.value)}
+              onChange={(e) => seleccionarProducto(e.target.value)}
               required
               aria-label="Producto del menú"
             >
@@ -121,9 +173,16 @@ export function RecetaForm({
               {productos.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nombre}
+                  {p.recetas.length > 0 ? " (con receta)" : ""}
                 </option>
               ))}
             </Select>
+            {editandoExistente ? (
+              <p className="text-xs text-sumi-600">
+                Este plato ya tiene receta: los ingredientes se cargaron abajo. Puedes
+                modificar cantidades, cambiar insumos, agregar o quitar líneas y guardar.
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-3">
@@ -210,11 +269,8 @@ export function RecetaForm({
               <Plus size={16} className="mr-1.5" />
               Agregar ingrediente
             </Button>
-            <Button
-              type="submit"
-              disabled={pending || !productoId || insumos.length === 0}
-            >
-              Guardar receta
+            <Button type="submit" disabled={pending || !productoId || insumos.length === 0}>
+              {editandoExistente ? "Guardar cambios" : "Guardar receta"}
             </Button>
           </div>
 
@@ -224,8 +280,7 @@ export function RecetaForm({
             </p>
           ) : (
             <p className="text-xs text-sumi-600">
-              Puedes sumar tantas líneas como necesites. Si el insumo ya estaba en la receta, se
-              actualiza la cantidad.
+              Al guardar se reemplaza toda la receta del plato con las líneas que veas aquí.
             </p>
           )}
         </form>

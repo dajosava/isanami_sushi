@@ -6,12 +6,18 @@ import { one } from "@/lib/relations";
 import Link from "next/link";
 import { clsx } from "clsx";
 
-export default async function RecetasPage() {
+export default async function RecetasPage({
+  searchParams,
+}: {
+  searchParams?: { editar?: string };
+}) {
   const supabase = createClient();
   const [{ data: productos }, { data: insumos }, { data: unidades }] = await Promise.all([
     supabase
       .from("productos")
-      .select("id, nombre, recetas(cantidad_requerida, insumos(nombre, unidades_medida(abreviatura)))")
+      .select(
+        "id, nombre, recetas(cantidad_requerida, insumo_id, unidad_medida_id, insumos(nombre, unidades_medida(abreviatura)))"
+      )
       .eq("activo", true)
       .order("nombre"),
     supabase.from("insumos").select("id, nombre").order("nombre"),
@@ -26,6 +32,16 @@ export default async function RecetasPage() {
   });
 
   const sinReceta = lista.filter((p) => !p.recetas || p.recetas.length === 0).length;
+
+  const productosForm = (productos ?? []).map((p) => ({
+    id: p.id as string,
+    nombre: p.nombre as string,
+    recetas: (p.recetas ?? []).map((r) => ({
+      insumoId: r.insumo_id as string,
+      cantidad: Number(r.cantidad_requerida ?? 0),
+      unidadId: (r.unidad_medida_id as string) ?? "",
+    })),
+  }));
 
   return (
     <div className="space-y-4">
@@ -56,24 +72,23 @@ export default async function RecetasPage() {
       ) : null}
 
       <RecetaForm
-        productos={(productos ?? []).map((p) => ({ id: p.id, nombre: p.nombre }))}
+        key={searchParams?.editar ?? "nueva"}
+        productos={productosForm}
         insumos={insumos ?? []}
         unidades={unidades ?? []}
+        productoInicialId={searchParams?.editar ?? null}
       />
 
       <div className="isanami-card-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {lista.map((producto) => {
           const vacia = !producto.recetas || producto.recetas.length === 0;
           return (
-            <Card
-              key={producto.id}
-              className={clsx(vacia && "ring-1 ring-gold/50")}
-            >
+            <Card key={producto.id} className={clsx(vacia && "ring-1 ring-gold/50")}>
               <CardHeader className="flex-row items-start justify-between gap-2">
                 <CardTitle>{producto.nombre}</CardTitle>
                 {vacia ? <Badge tono="advertencia">Sin receta</Badge> : null}
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <ul className="space-y-1 text-sm text-sumi-700">
                   {producto.recetas?.map((r, i) => {
                     const insumo = one(r.insumos);
@@ -88,6 +103,12 @@ export default async function RecetasPage() {
                     <li className="italic">Sin receta definida — no descuenta stock al vender</li>
                   ) : null}
                 </ul>
+                <Link
+                  href={`/inventario/recetas?editar=${producto.id}#armar-receta`}
+                  className="inline-flex text-sm font-medium text-vermillion underline-offset-2 hover:underline"
+                >
+                  {vacia ? "Armar receta" : "Editar receta"}
+                </Link>
               </CardContent>
             </Card>
           );
